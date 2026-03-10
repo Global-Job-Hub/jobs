@@ -1,44 +1,40 @@
-name: Jobber
+name: Global Job Hub Jobber
+
 on:
   schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
+    - cron: '0 */6 * * *' # Runs every 6 hours
+  workflow_dispatch:      # Allows manual trigger
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # Updated from v3
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Updated from v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
-      - name: Install dependencies
-        run: pip install requests google-api-python-client google-auth
+      - name: Install Dependencies
+        run: |
+          pip install requests google-api-python-client google-auth
 
       - name: Generate Job Pages
         env:
           JOOBLE_API_KEY: ${{ secrets.JOOBLE_API_KEY }}
-          ADSTERRA_BANNER_CODE: ${{ secrets.ADSTERRA_BANNER_CODE }}
         run: python content_manager.py --generate
 
-      - name: Push Pages to GitHub
+      - name: Commit and Push Changes
         run: |
-          git config --global user.name "JobBot"
-          git config --global user.email "bot@github.com"
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
           git add .
-          git commit -m "New Jobs Generated" || exit 0
+          git commit -m "Automated Job Update $(date)" || echo "No changes to commit"
           git push
 
-      - name: Wait for GitHub Pages to Deploy
-        run: sleep 90
-
-      - name: Notify Google Indexing API
+      - name: Notify Google Indexing
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
         run: python content_manager.py --index
