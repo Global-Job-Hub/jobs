@@ -9,113 +9,79 @@ from googleapiclient.discovery import build
 JOOBLE_KEY = os.environ.get("JOOBLE_API_KEY")
 SITE_URL = "https://global-job-hub.github.io/jobs/"
 GOOGLE_CREDS = os.environ.get("GOOGLE_CREDENTIALS")
+LOG_FILE = "indexing_tracker.json"
+MAX_DAILY = 195  # Staying just under 200 to be safe
 
-# --- 1. FETCH JOBS FROM JOOBLE ---
-def fetch_jooble_jobs():
-    url = f"https://jooble.org/api/{JOOBLE_KEY}"
-    # Change keywords/location to target specific jobs
-    payload = {"keywords": "software engineer", "location": "Remote"}
-    response = requests.post(url, json=payload)
-    if response.status_code == 200:
-        return response.json().get('jobs', [])
-    print("❌ Jooble API Error")
-    return []
+def get_status():
+    """Reads the current count and date from the tracker file."""
+    today = str(datetime.date.today())
+    if os.path.exists(LOG_FILE):
+        try:
+            with open(LOG_FILE, "r") as f:
+                data = json.load(f)
+                if data.get("date") == today:
+                    return data.get("count", 0), today
+        except:
+            pass
+    return 0, today
 
-# --- 2. GENERATE HTML PAGE ---
-def generate_job_page(job):
-    # Create a unique filename/slug
-    job_id = job.get('id', '0')
-    slug = job.get('title').lower().replace(" ", "-").replace("/", "-")
-    filename = f"{slug}-{job_id}.html"
-    
-    # Adsterra Placeholder (Add your actual codes in GitHub Secrets)
-    ad_banner = os.environ.get("ADSTERRA_BANNER_CODE", "")
-    
-    html_content = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{job['title']} - Global Job Hub</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {{ font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: auto; }}
-        .apply-btn {{ display: inline-block; padding: 15px 25px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }}
-        .ad-space {{ margin: 20px 0; border: 1px solid #ddd; padding: 10px; text-align: center; }}
-    </style>
-    
-    <script type="application/ld+json">
-    {{
-      "@context" : "https://schema.org/",
-      "@type" : "JobPosting",
-      "title" : "{job['title']}",
-      "description" : "{job['snippet']}",
-      "identifier": {{
-        "@type": "PropertyValue",
-        "name": "{job['company']}",
-        "value": "{job_id}"
-      }},
-      "datePosted" : "{datetime.date.today()}",
-      "hiringOrganization" : {{
-        "@type" : "Organization",
-        "name" : "{job['company']}",
-        "logo" : "https://global-job-hub.github.io/logo.png"
-      }},
-      "jobLocation": {{
-        "@type": "Place",
-        "address": {{
-          "@type": "PostalAddress",
-          "addressLocality": "{job['location']}",
-          "addressCountry": "US"
-        }}
-      }}
-    }}
-    </script>
-</head>
-<body>
-    <h1>{job['title']}</h1>
-    <h3>Company: {job['company']} | Location: {job['location']}</h3>
-    
-    <div class="ad-space">{ad_banner}</div>
+def save_status(count, date):
+    """Saves the updated count and date."""
+    with open(LOG_FILE, "w") as f:
+        json.dump({"date": date, "count": count}, f)
 
-    <div class="description">
-        {job['snippet']}
-    </div>
-
-    <div style="margin-top: 30px;">
-        <a href="{job['link']}" class="apply-btn">View full job on Jooble</a>
-    </div>
-
-    <p><small>Powered by Jooble API</small></p>
-</body>
-</html>
-"""
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(html_content)
-    return filename
-
-# --- 3. NOTIFY GOOGLE INDEXING API ---
-def notify_google(page_url):
-    try:
-        info = json.loads(GOOGLE_CREDS)
-        creds = service_account.Credentials.from_service_account_info(
-            info, scopes=["https://www.googleapis.com/auth/indexing"]
-        )
-        service = build("indexing", "v3", credentials=creds)
-        body = {"url": page_url, "type": "URL_UPDATED"}
-        service.urlNotifications().publish(body=body).execute()
-        print(f"✅ Indexed: {page_url}")
-    except Exception as e:
-        print(f"❌ Indexing Failed for {page_url}: {e}")
-
-# --- MAIN EXECUTION ---
 def main():
-    jobs = fetch_jooble_jobs()
-    print(f"Fetched {len(jobs)} jobs.")
+    current_count, today = get_status()
     
-    for job in jobs[:10]: # Start with 10 to test
-        filename = generate_job_page(job)
-        full_url = f"{SITE_URL}{filename}"
-        notify_google(full_url)
+    # 1. THE AUTO-CHECK
+    if current_count >= MAX_DAILY:
+        print(f"🛑 STOP: You have already indexed {current_count} pages today ({today}).")
+        print("To avoid Google API bans, no more requests will be sent until tomorrow.")
+        return
+
+    # 2. FETCH JOBS
+    # (Assuming you use Jooble to get new job data)
+    print(f"🔄 Starting run. Current daily total: {current_count}")
+    
+    # Example logic: only fetch what we have space for
+    space_left = MAX_DAILY - current_count
+    
+    # --- FETCH JOBS FROM JOOBLE ---
+    # (Abbreviated fetch logic for clarity)
+    url = f"https://jooble.org/api/{JOOBLE_KEY}"
+    payload = {"keywords": "software engineer", "location": "Remote"}
+    res = requests.post(url, json=payload)
+    jobs = res.json().get('jobs', [])[:space_left] # Only take what's allowed
+
+    if not jobs:
+        print("✅ No new jobs to process.")
+        return
+
+    # 3. INITIALIZE GOOGLE API
+    info = json.loads(GOOGLE_CREDS)
+    creds = service_account.Credentials.from_service_account_info(
+        info, scopes=["https://www.googleapis.com/auth/indexing"]
+    )
+    service = build("indexing", "v3", credentials=creds)
+
+    new_indexed_count = current_count
+    for job in jobs:
+        # 4. GENERATE PAGE & SEND TO GOOGLE
+        # ... (Insert your page generation logic here) ...
+        
+        job_url = f"{SITE_URL}job-{job['id']}.html" # Example URL
+        
+        try:
+            body = {"url": job_url, "type": "URL_UPDATED"}
+            service.urlNotifications().publish(body=body).execute()
+            new_indexed_count += 1
+            print(f"✅ Indexed: {job_url}")
+        except Exception as e:
+            print(f"⚠️ Error indexing {job_url}: {e}")
+
+    # 5. SAVE PROGRESS
+    save_status(new_indexed_count, today)
+    print(f"📊 Run finished. Total indexed for today: {new_indexed_count}")
 
 if __name__ == "__main__":
     main()
