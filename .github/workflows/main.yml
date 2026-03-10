@@ -8,14 +8,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write    # Ensures the action has permission to push files
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4 # Updated from v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # Updated from v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12' # Upgraded from 3.10 to stay supported until 2026+
 
       - name: Install Dependencies
         run: |
@@ -24,6 +26,7 @@ jobs:
       - name: Generate Job Pages
         env:
           JOOBLE_API_KEY: ${{ secrets.JOOBLE_API_KEY }}
+          SITE_URL: "https://global-job-hub.github.io/jobs/"
         run: python content_manager.py --generate
 
       - name: Commit and Push Changes
@@ -37,4 +40,5 @@ jobs:
       - name: Notify Google Indexing
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          SITE_URL: "https://global-job-hub.github.io/jobs/"
         run: python content_manager.py --index
