@@ -1,0 +1,35 @@
+name: Jober
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour
+  workflow_dispatch: # Allows you to run it manually for testing
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: ambassadors/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run script
+        env:
+          JOOBLE_API_KEY: ${{ secrets.JOOBLE_API_KEY }}
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          ADSTERRA_BANNER_CODE: ${{ secrets.ADSTERRA_BANNER_CODE }}
+        run: python content_manager.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "JobBot"
+          git config --global user.email "bot@github.com"
+          git add .
+          git commit -m "Added new jobs" || exit 0
+          git push
