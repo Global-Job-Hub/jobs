@@ -1,41 +1,14 @@
-name: Job Autopilot
-on:
-  schedule:
-    - cron: '0 * * * *' # Runs every hour
-  workflow_dispatch: # Allows you to run it manually for testing
+- name: Run Generation
+        run: python content_manager.py --only-generate
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    # This gives the bot permission to save the tracker file
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-
-      - name: Install dependencies
+      - name: Push to GitHub
         run: |
-          pip install requests google-api-python-client google-auth
-
-      - name: Run script
-        env:
-          JOOBLE_API_KEY: ${{ secrets.JOOBLE_API_KEY }}
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-          ADSTERRA_BANNER_CODE: ${{ secrets.ADSTERRA_BANNER_CODE }}
-          ADSTERRA_SOCIAL_BAR: ${{ secrets.ADSTERRA_SOCIAL_BAR }}
-        run: python content_manager.py
-
-      - name: Commit and Push changes
-        run: |
-          git config --global user.name "JobBot"
-          git config --global user.email "bot@github.com"
           git add .
-          git commit -m "Updated jobs and indexing tracker" || exit 0
+          git commit -m "New Jobs"
           git push
+
+      - name: Wait for Deployment
+        run: sleep 90
+
+      - name: Run Google Indexing
+        run: python content_manager.py --only-index
