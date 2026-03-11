@@ -2,25 +2,24 @@ import os
 import sys
 import json
 import re
-import datetime
-import requests
-import urllib3
+from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
 # --- CONFIG ---
 SITE_URL = os.environ.get("SITE_URL", "https://global-job-hub.github.io/jobs/")
 GOOGLE_CREDS = os.environ.get("GOOGLE_CREDENTIALS")
+EXPIRE_DAYS = 30
+HTML_FOLDER = os.environ.get("HTML_FOLDER", "./")
+SENT_CACHE_FILE = os.environ.get("SENT_CACHE_FILE", "sent_jobs.json")  # track jobs sent to Google
 
 if not SITE_URL.endswith('/'):
     SITE_URL += '/'
 
-def notify_google(url):
-    """Notifies Google Indexing API about a new/updated job URL."""
+# --- GOOGLE INDEXING API ---
+def notify_google(url, action="URL_UPDATED"):
     if not GOOGLE_CREDS:
-        print(f"⚠️ Google Indexing skipped: Credentials secret not found.")
+        print(f"⚠️ Google Indexing skipped: Credentials not found")
         return
     try:
         info = json.loads(GOOGLE_CREDS)
@@ -28,68 +27,20 @@ def notify_google(url):
             info, scopes=["https://www.googleapis.com/auth/indexing"]
         )
         service = build("indexing", "v3", credentials=credentials)
-        body = {"url": url, "type": "URL_UPDATED"}
+        body = {"url": url, "type": action}
         service.urlNotifications().publish(body=body).execute()
-        print(f"🚀 Google Notified: {url}")
+        print(f"🚀 Google Notified: {url} ({action})")
     except Exception as e:
         print(f"❌ Google Indexing Error: {e}")
 
-def fetch_jobs():
-    """Fetches jobs from WWR with enhanced headers to bypass 401/403 errors."""
-    api_url = "https://weworkremotely.com/api/v1/remote-jobs"
-    
-    session = requests.Session()
-    # Add a more robust retry for 401/403 (sometimes transient)
-    retry_strategy = Retry(
-        total=5,
-        backoff_factor=3,
-        status_forcelist=[401, 403, 429, 500, 502, 503, 504],
-    )
-    session.mount("https://", HTTPAdapter(max_retries=retry_strategy))
-
-    # WWR frequently checks for these specific headers
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://weworkremotely.com/",
-        "Origin": "https://weworkremotely.com"
-    }
-
-    try:
-        print(f"📡 Attempting stealth connection to WWR...")
-        response = session.get(api_url, headers=headers, timeout=25)
-
-        if response.status_code == 200:
-            raw_jobs = response.json().get('jobs', [])
-            formatted_jobs = []
-            for job in raw_jobs:
-                formatted_jobs.append({
-                    'id': job.get('id'),
-                    'title': job.get('title'),
-                    'company': job.get('company'),
-                    'snippet': job.get('description'),
-                    'link': job.get('url')
-                })
-            print(f"✅ Success! Fetched {len(formatted_jobs)} jobs.")
-            return formatted_jobs
-        else:
-            print(f"❌ WWR Error {response.status_code}: Access Denied. GitHub IP might be blacklisted.")
-            
-    except Exception as e:
-        print(f"❌ Fatal Fetch Error: {e}")
-        
-    return []
-
+# --- HTML GENERATOR ---
 def generate_job_page(job):
-    """Generates a standalone HTML page for a specific job."""
     job_id = job.get('id', '0')
-    title = job.get('title', 'job')
-    # Create a URL-friendly slug
+    title = job.get('title', 'Job')
     clean_name = re.sub(r'[^a-z0-9]', '-', title.lower()).strip('-')
     filename = f"{clean_name}-{job_id}.html"
-    
-    # Using .get() ensures the script doesn't crash if a field is missing
+    filepath = os.path.join(HTML_FOLDER, filename)
+
     content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -111,24 +62,84 @@ def generate_job_page(job):
 </body>
 </html>"""
 
-    with open(filename, "w", encoding="utf-8") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write(content)
-    return filename
+    return filename, filepath
 
+# --- HELPER FUNCTIONS ---
+def calculate_expiry(posted_date):
+    try:
+        dt = datetime.strptime(posted_date, "%Y-%m-%d")
+    except:
+        dt = datetime.utcnow()
+    expiry = dt + timedelta(days=EXPIRE_DAYS)
+    return expiry.strftime("%Y-%m-%d")
+
+def load_sent_cache():
+    if os.path.exists(SENT_CACHE_FILE):
+        with open(SENT_CACHE_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+def save_sent_cache(cache):
+    with open(SENT_CACHE_FILE, "w", encoding="utf-8") as f:
+        json.dump(cache, f, indent=2)
+
+def job_hash(job):
+    """Generate a hash string based on job content to detect changes"""
+    return f"{job.get('title','')}_{job.get('company','')}_{job.get('snippet','')}_{job.get('link','')}"
+
+# --- CLEAN EXPIRED JOBS ---
+def remove_expired_html():
+    today = datetime.utcnow()
+    for filename in os.listdir(HTML_FOLDER):
+        if not filename.endswith(".html"):
+            continue
+        filepath = os.path.join(HTML_FOLDER, filename)
+        try:
+            mtime = datetime.utcfromtimestamp(os.path.getmtime(filepath))
+            expiry_date = mtime + timedelta(days=EXPIRE_DAYS)
+            if expiry_date < today:
+                os.remove(filepath)
+                notify_google(f"{SITE_URL}{filename}", action="URL_DELETED")
+                print(f"🗑 Expired page removed: {filename}")
+        except Exception as e:
+            print(f"⚠ Could not process {filename}: {e}")
+
+# --- MAIN ---
 def main():
-    mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
-    
-    if mode == "--generate":
-        jobs_list = fetch_jobs()
-        if jobs_list:
-            # Limit to 20 jobs to respect Google Indexing limits and build times
-            to_process = jobs_list[:20]
-            for job in to_process:
-                filename = generate_job_page(job)
-                notify_google(f"{SITE_URL}{filename}")
-            print(f"✅ Processed {len(to_process)} jobs.")
-        else:
-            print("⚠️ No jobs processed. Check API connection.")
+    if len(sys.argv) < 2:
+        print("Usage: python content_manager.py jobs.json")
+        sys.exit(1)
+
+    json_file = sys.argv[1]
+    with open(json_file, "r", encoding="utf-8") as f:
+        jobs_list = json.load(f)
+
+    sent_cache = load_sent_cache()
+    updated_cache = sent_cache.copy()
+
+    processed_count = 0
+
+    for job in jobs_list:
+        job['expiry_date'] = calculate_expiry(job.get('posted_date', datetime.utcnow().strftime("%Y-%m-%d")))
+        h = job_hash(job)
+
+        # Only notify Google if new or changed
+        if h in sent_cache and sent_cache[h] == job['expiry_date']:
+            print(f"⚡ Skipping unchanged job: {job.get('title')}")
+            continue
+
+        filename, filepath = generate_job_page(job)
+        notify_google(f"{SITE_URL}{filename}")
+        updated_cache[h] = job['expiry_date']
+        processed_count += 1
+
+    save_sent_cache(updated_cache)
+    print(f"✅ Processed {processed_count} jobs (new or updated)")
+
+    remove_expired_html()
+    print("✅ Expired jobs cleaned")
 
 if __name__ == "__main__":
     main()
