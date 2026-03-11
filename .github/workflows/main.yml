@@ -19,7 +19,7 @@ jobs:
       AD_468X60:  ${{ secrets.AD_468X60 }}
       AD_728X90:  ${{ secrets.AD_728X90 }}
       AD_NATIVE:  ${{ secrets.AD_NATIVE }}
-      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_CREDENTIALS }}
 
     steps:
       - name: Checkout repository
