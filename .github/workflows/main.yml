@@ -3,8 +3,8 @@ name: Build and Index Job Pages
 on:
   push:
     paths:
-      - 'jobs.json'   # Trigger only when jobs.json is updated
-  workflow_dispatch:   # Allow manual trigger
+      - 'jobs.json'       # Trigger only when jobs.json is updated
+  workflow_dispatch:      # Allows manual trigger
 
 jobs:
   build_and_index:
@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true  # Allows pushing back without a token
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -35,22 +37,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install google-api-python-client google-auth
 
-      - name: Generate Job Pages & Update JSON
+      - name: Generate Job Pages & Send to Google
         run: |
           python content_manager.py jobs.json
 
-      - name: Commit and Push Generated Files
+      - name: Commit generated files
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git add *.html index.json generated_urls.json pending_urls.txt sent_urls.json
-          git diff --cached --quiet || git commit -m "Update job pages and index files [skip ci]"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add *.html index.json generated_urls.json sent_urls.json pending_urls.txt || echo "No files to add"
+          git commit -m "Update job pages and index files [skip ci]" || echo "No changes to commit"
           git push origin main
-
-      - name: Wait for Pages to be Available
-        run: |
-          echo "Waiting 30 seconds for pages to propagate..."
-          sleep 30
-
-      - name: Done
-        run: echo "Job pages generated and committed successfully!"
