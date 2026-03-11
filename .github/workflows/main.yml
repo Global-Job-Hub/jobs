@@ -3,8 +3,8 @@ name: Build and Index Job Pages
 on:
   push:
     paths:
-      - 'jobs.json'   # Trigger only when jobs.json is updated
-  workflow_dispatch:   # Allows manual trigger
+      - 'jobs.json'
+  workflow_dispatch:
 
 jobs:
   build_and_index:
@@ -25,7 +25,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0   # Needed to push changes
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -38,23 +38,22 @@ jobs:
           pip install google-api-python-client google-auth
 
       - name: Generate Job Pages & Send to Google
-        run: |
-          python content_manager.py jobs.json
-        working-directory: ./   # Ensure we are in repo root
+        run: python content_manager.py jobs.json
 
-      - name: Commit generated files
+      - name: Commit generated files safely
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Add all generated files safely
-          git add index.json generated_urls.json sent_urls.json pending_urls.txt *.html
+          for file in index.json generated_urls.json sent_urls.json pending_urls.txt *.html; do
+            [ -f "$file" ] && git add "$file"
+          done
           git commit -m "Update generated job pages and index" || echo "No changes to commit"
 
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          branch: main  # Change if you use a different branch
+          branch: main
           force: true
 
       - name: Wait for GitHub Pages propagation
@@ -63,5 +62,4 @@ jobs:
           sleep 60
 
       - name: Confirm new URLs sent
-        run: |
-          echo "Check sent_urls.json for URLs sent to Google Indexing API"
+        run: echo "Check sent_urls.json for URLs sent to Google Indexing API"
