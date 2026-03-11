@@ -22,12 +22,7 @@ ADS = {
 }
 
 def get_ultra_sensitive_hash(job):
-    """
-    Serializes the entire job dictionary to a string. 
-    If ANY field (salary, location, source, snippet, title) changes, 
-    the hash will be different.
-    """
-    # Sort keys to ensure the same data always produces the same hash
+    """Serializes entire job to a hash. Any tiny change triggers an update."""
     job_string = json.dumps(job, sort_keys=True)
     return hashlib.sha256(job_string.encode('utf-8')).hexdigest()
 
@@ -35,30 +30,59 @@ def slugify(text):
     text = str(text).lower()
     return re.sub(r'[-\s]+', '-', re.sub(r'[^\w\s-]', '', text)).strip('-')
 
+def cleanup_numeric_jobs():
+    """Identifies job pages via the long Jooble ID and deletes if expired."""
+    print("🧹 Starting Numeric-Based Job Cleanup...")
+    today = datetime.date.today().isoformat()
+    
+    # Matches: - followed by 10+ digits .html (e.g., -3087854023968195667.html)
+    job_pattern = re.compile(r"-(\d{10,})\.html$")
+
+    for filename in os.listdir("."):
+        if job_pattern.search(filename):
+            try:
+                with open(filename, "r", encoding="utf-8") as f:
+                    content = f.read()
+                
+                # Regex to find the hidden expiry tag
+                match = re.search(r'', content)
+                
+                if match:
+                    expiry_date = match.group(1)
+                    if today > expiry_date:
+                        print(f"🗑️ Expired: {filename} (Date: {expiry_date})")
+                        os.remove(filename)
+                    else:
+                        print(f"✅ Active: {filename}")
+                else:
+                    print(f"⚠️ No Expiry Tag: {filename}. Removing for safety.")
+                    os.remove(filename)
+            except Exception as e:
+                print(f"❌ Error processing {filename}: {e}")
+    print("✅ Cleanup Complete.")
+
 def generate_job_page(job):
     job_id = job.get('id', '0')
     title = job.get('title', 'Job Opening')
     company = job.get('company', 'Hiring Company')
     location = job.get('location', 'Remote')
-    salary = job.get('salary', 'Competitive') # Added Salary sensitivity
+    salary = job.get('salary', 'Competitive')
     snippet = job.get('snippet', '').replace('"', "'")
     link = job.get('link', '#')
     
-    # --- GLOBAL SENSITIVITY CHECK ---
     new_hash = get_ultra_sensitive_hash(job)
     filename = f"{slugify(title)}-{job_id}.html"
+
+    # Expiry set to 30 days from now
+    expiry_date = (datetime.date.today() + datetime.timedelta(days=30)).isoformat()
+    post_date = datetime.date.today().isoformat()
 
     if os.path.exists(filename):
         with open(filename, "r", encoding="utf-8") as f:
             content = f.read()
-            # Check if the specific data-hash is already in the file
             if f"DATA_HASH:{new_hash}" in content:
-                print(f"⏭️ Skipping: No changes in any data field for {filename}")
-                return None 
+                return None # Skip if absolutely identical
 
-    print(f"🔄 Change Detected (Location/Salary/Text): Updating {filename}")
-    post_date = datetime.date.today().isoformat()
-    
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -121,3 +145,22 @@ def generate_job_page(job):
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html_template)
     return filename
+
+def main():
+    mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
+    
+    if mode == "--generate":
+        print("🚀 Starting generation...")
+        if not JOOBLE_KEY: return
+        res = requests.post(f"https://jooble.org/api/{JOOBLE_KEY}", json={"keywords": "remote", "location": ""})
+        jobs = res.json().get('jobs', [])
+        
+        for job in jobs[:20]:
+            generate_job_page(job)
+        print("✅ Generation complete.")
+
+    elif mode == "--cleanup":
+        cleanup_numeric_jobs()
+
+if __name__ == "__main__":
+    main()
