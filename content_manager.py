@@ -13,7 +13,7 @@ SITE_URL = "https://global-job-hub.github.io/jobs/"
 JOOBLE_KEY = os.environ.get("JOOBLE_API_KEY")
 GOOGLE_CREDS = os.environ.get("GOOGLE_CREDENTIALS")
 
-# Professional Ad Slot Placeholder
+# Professional Ad Slot Placeholder (Triggers the ads-config.js loader)
 AD_PLACEHOLDER = '<div class="ad-slot-placeholder" style="min-height:100px; background:#f9f9f9; display:flex; align-items:center; justify-content:center; border:1px dashed #ddd; font-size:12px; color:#aaa;">Advertisement</div>'
 
 def slugify(text):
@@ -87,6 +87,7 @@ def generate_job_page(job):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} | {company} - Job Details</title>
+    <script src="ads-config.js" defer></script>
     <script type="application/ld+json">
     {{
       "@context" : "https://schema.org/",
@@ -149,7 +150,9 @@ def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
     
     if mode == "--generate":
-        print("🚀 Fetching jobs and building search index...")
+        print("🚀 Starting generation process...")
+        
+        # 1. FETCH JOBS FROM JOOBLE
         if not JOOBLE_KEY:
             print("❌ Error: JOOBLE_API_KEY missing.")
             return
@@ -159,29 +162,49 @@ def main():
         jobs = res.json().get('jobs', [])
         
         new_urls = []
-        all_jobs_data = [] # Data for the Search Bar
+        all_jobs_data = [] 
         
+        # 2. GENERATE INDIVIDUAL JOB PAGES
         for job in jobs[:20]:
             fname = generate_job_page(job)
             new_urls.append(f"{SITE_URL}{fname}")
             
-            # Prepare data for fuzzy search index
             all_jobs_data.append({
                 "t": job.get('title'),
                 "c": job.get('company'),
                 "l": job.get('location'),
-                "u": fname  # The local filename for redirection
+                "u": fname 
             })
 
-        # Save the search index for index.html to use
+        # 3. SAVE SEARCH INDEX (For the fuzzy search bar)
         with open("jobs_index.json", "w", encoding="utf-8") as f:
             json.dump(all_jobs_data, f)
             
-        # Save pending URLs for Google Indexing
+        # 4. GENERATE FINAL index.html (Ad Injection)
+        if os.path.exists("index_template.html"):
+            print("🎨 Injecting Ads into Homepage...")
+            with open("index_template.html", "r", encoding="utf-8") as f:
+                home_html = f.read()
+
+            # Replacing placeholders with Secrets from Environment Variables
+            home_html = home_html.replace("{{AD_728x90}}", os.environ.get("AD_728x90", ""))
+            home_html = home_html.replace("{{AD_300x250}}", os.environ.get("AD_300x250", ""))
+            home_html = home_html.replace("{{AD_468x60}}", os.environ.get("AD_468x60", ""))
+            home_html = home_html.replace("{{AD_160x600}}", os.environ.get("AD_160x600", ""))
+            home_html = home_html.replace("{{AD_160x300}}", os.environ.get("AD_160x300", ""))
+            home_html = home_html.replace("{{AD_320x50}}", os.environ.get("AD_320x50", ""))
+            home_html = home_html.replace("{{AD_NATIVE}}", os.environ.get("AD_NATIVE", ""))
+
+            with open("index.html", "w", encoding="utf-8") as f:
+                f.write(home_html)
+        else:
+            print("⚠️ Warning: index_template.html not found. Skipping homepage ad injection.")
+
+        # 5. SAVE PENDING URLS FOR GOOGLE INDEXING
         with open("pending_urls.txt", "w") as f:
             for u in new_urls: f.write(u + "\n")
             
-        print(f"✅ {len(new_urls)} Job Pages and 'jobs_index.json' created.")
+        print(f"✅ Setup complete. {len(new_urls)} jobs processed.")
 
     elif mode == "--cleanup":
         cleanup_expired_jobs()
