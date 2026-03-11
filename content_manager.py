@@ -13,6 +13,7 @@ SITE_URL = "https://global-job-hub.github.io/jobs/"
 JOOBLE_KEY = os.environ.get("JOOBLE_API_KEY")
 GOOGLE_CREDS = os.environ.get("GOOGLE_CREDENTIALS")
 
+# Professional Ad Slot Placeholder
 AD_PLACEHOLDER = '<div class="ad-slot-placeholder" style="min-height:100px; background:#f9f9f9; display:flex; align-items:center; justify-content:center; border:1px dashed #ddd; font-size:12px; color:#aaa;">Advertisement</div>'
 
 def slugify(text):
@@ -45,19 +46,14 @@ def cleanup_expired_jobs():
                 with open(filename, "r", encoding="utf-8") as f:
                     content = f.read()
                 
-                # Regex to find the validThrough date in the JSON-LD schema
                 match = re.search(r'"validThrough"\s*:\s*"(\d{4}-\d{2}-\d{2})', content)
                 
                 if match:
                     expiry_date = match.group(1)
                     if today > expiry_date:
                         print(f"❌ Expired: {filename} (Date was {expiry_date})")
-                        
-                        # Notify Google before deleting local file
                         job_url = f"{SITE_URL}{filename}"
                         notify_google_removal(job_url)
-                        
-                        # Delete the file
                         os.remove(filename)
                         files_deleted += 1
             except Exception as e:
@@ -73,12 +69,9 @@ def generate_job_page(job):
     snippet = job.get('snippet', '').replace('"', "'")
     link = job.get('link', '#')
     
-    # --- DATE HANDLING ---
-    # Use Jooble's 'updated' date or fallback to today
     updated_raw = job.get('updated', datetime.datetime.now().isoformat())
     post_date = updated_raw.split('T')[0] 
     
-    # If Jooble provides 'expire', use it. Otherwise, default to 30 days from posting.
     if job.get('expire'):
         expiry_date = job.get('expire').split('T')[0]
     else:
@@ -94,7 +87,6 @@ def generate_job_page(job):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} | {company} - Job Details</title>
-    <script src="{SITE_URL}js/ads-config.js" defer></script>
     <script type="application/ld+json">
     {{
       "@context" : "https://schema.org/",
@@ -118,6 +110,7 @@ def generate_job_page(job):
         td {{ line-height: 1.6; font-size: 16px; }}
         .ad-row-container {{ padding: 10px; text-align: center; border-bottom: 1px solid #f0f0f0; background: #fff; }}
         .apply-btn {{ background: #28a745; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; transition: 0.3s; }}
+        .apply-btn:hover {{ background: #218838; }}
     </style>
 </head>
 <body>
@@ -141,9 +134,8 @@ def generate_job_page(job):
     <div class="ad-row-container">{AD_PLACEHOLDER}</div>
     <footer style="text-align:center; padding:25px; font-size:12px; color:#999; background:#fafafa;">
         <p>© 2026 Global Job Hub</p>
-        <a href="{SITE_URL}privacy-policy.html">Privacy Policy</a> | 
-        <a href="{SITE_URL}terms-of-service.html">Terms of Service</a> |
-        <a href="{SITE_URL}contact.html">Contact Us</a>
+        <a href="{SITE_URL}">Back to Search</a> | 
+        <a href="{SITE_URL}privacy-policy.html">Privacy Policy</a>
     </footer>
 </div>
 </body>
@@ -157,20 +149,39 @@ def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
     
     if mode == "--generate":
-        print("🚀 Fetching jobs...")
+        print("🚀 Fetching jobs and building search index...")
         if not JOOBLE_KEY:
             print("❌ Error: JOOBLE_API_KEY missing.")
             return
+            
         url = f"https://jooble.org/api/{JOOBLE_KEY}"
         res = requests.post(url, json={"keywords": "remote", "location": ""})
         jobs = res.json().get('jobs', [])
+        
         new_urls = []
+        all_jobs_data = [] # Data for the Search Bar
+        
         for job in jobs[:20]:
             fname = generate_job_page(job)
             new_urls.append(f"{SITE_URL}{fname}")
+            
+            # Prepare data for fuzzy search index
+            all_jobs_data.append({
+                "t": job.get('title'),
+                "c": job.get('company'),
+                "l": job.get('location'),
+                "u": fname  # The local filename for redirection
+            })
+
+        # Save the search index for index.html to use
+        with open("jobs_index.json", "w", encoding="utf-8") as f:
+            json.dump(all_jobs_data, f)
+            
+        # Save pending URLs for Google Indexing
         with open("pending_urls.txt", "w") as f:
             for u in new_urls: f.write(u + "\n")
-        print(f"✅ {len(new_urls)} Pages Generated.")
+            
+        print(f"✅ {len(new_urls)} Job Pages and 'jobs_index.json' created.")
 
     elif mode == "--cleanup":
         cleanup_expired_jobs()
@@ -191,7 +202,7 @@ def main():
                 for url in f:
                     target = url.strip()
                     try:
-                        # Only index if the page is actually live
+                        # Check if live before notifying Google
                         if requests.get(target).status_code == 200:
                             service.urlNotifications().publish(body={"url": target, "type": "URL_UPDATED"}).execute()
                             print(f"🚀 Indexed: {target}")
