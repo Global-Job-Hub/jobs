@@ -99,16 +99,18 @@ def generate_index():
     print("✅ index.html and jobs_index.json updated.")
 
 def main():
+    # Default to generate if no args provided
     mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
     
     if mode == "--generate":
-        jobs = fetch_jobs()
-        for job in jobs[:10]:
-            fname = generate_job_page(job)
-            full_url = f"{SITE_URL}{fname}"
-            # THIS IS WHERE IT NOTIFIES GOOGLE
-            notify_google(full_url)
-        generate_index()
+        jobs_list = fetch_jobs() # Now includes the print(quota) logic
+        if jobs_list:
+            for job in jobs_list[:20]:
+                filename = generate_job_page(job)
+                full_url = f"{SITE_URL}{filename}"
+                notify_google(full_url) # This will now show 🚀 in your logs
+        generate_index() # Rebuild the search index and main page
+        
     elif mode == "--index":
         generate_index()
 
