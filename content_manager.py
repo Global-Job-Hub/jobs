@@ -47,37 +47,52 @@ def fetch_jobs():
         print("❌ CRITICAL ERROR: JOOBLE_API_KEY secret is empty or missing!")
         return []
     
-    api_url = f"https://api.jooble.org/api/{JOOBLE_KEY}"
+    # FIX: Use the V2 endpoint which is more stable across regions
+    api_url = f"https://jooble.org/api/v2/{JOOBLE_KEY}"
     
     try:
-        print(f"📡 Connecting to Jooble API...")
-        # Suppress insecure request warnings for the SSL bypass
+        print(f"📡 Connecting to Jooble API via {api_url}...")
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         
-        headers = {"Content-type": "application/json"}
-        payload = {"keywords": "remote", "location": ""}
+        headers = {
+            "Content-type": "application/json",
+            "Accept": "application/json"
+        }
+        
+        # Jooble expects a JSON body
+        payload = {
+            "keywords": "remote", 
+            "location": "",
+            "searchMode": 1 # Optional: improves search relevance
+        }
         
         response = requests.post(
             api_url, 
             json=payload, 
             headers=headers,
             timeout=20, 
-            verify=False # Bypasses the "local issuer certificate" error
+            verify=False 
         )
         
-        # Check Quota Headers
-        remaining = response.headers.get('x-ratelimit-remaining', 'N/A')
-        print(f"📊 Jooble Quota Remaining: {remaining}")
-        
+        # Log the status for debugging
+        print(f"📡 Server Response: {response.status_code}")
+
         if response.status_code == 200:
             data = response.json()
+            # Jooble returns 'jobs' as a list within the root object
             jobs = data.get('jobs', [])
+            remaining = response.headers.get('x-ratelimit-remaining', 'N/A')
+            print(f"📊 Jooble Quota Remaining: {remaining}")
             print(f"✅ Success! Fetched {len(jobs)} jobs.")
             return jobs
+            
         elif response.status_code == 404:
-            print(f"❌ Error 404: Endpoint not found. Ensure your JOOBLE_API_KEY secret is correct.")
+            print(f"❌ Error 404: Endpoint not found.")
+            print(f"💡 Troubleshooting: Ensure your key '{JOOBLE_KEY}' is a valid UUID and not the full URL.")
+        elif response.status_code == 401:
+            print("❌ Error 401: Unauthorized. Your API key is likely invalid.")
         elif response.status_code == 429:
-            print("❌ Error 429: QUOTA FULL! No more requests allowed today.")
+            print("❌ Error 429: QUOTA FULL!")
         else:
             print(f"❌ Jooble Error {response.status_code}: {response.text[:200]}")
             
