@@ -41,66 +41,77 @@ def notify_google(url):
     except Exception as e:
         print(f"❌ Google Indexing Error: {e}")
 
+import requests
+import urllib3
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
 def fetch_jobs():
-    """Fetches jobs from Jooble using a cleaned key and SSL bypass."""
+    """Fetches jobs from Jooble with robust error handling for IP bans and SSL issues."""
     if not JOOBLE_KEY:
         print("❌ CRITICAL ERROR: JOOBLE_API_KEY secret is empty or missing!")
         return []
-    
-    # FIX: Use the V2 endpoint which is more stable across regions
+
     api_url = f"https://jooble.org/api/v2/{JOOBLE_KEY}"
     
+    # 1. Setup a robust Session with Retries
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=1, # Waits 1s, 2s, 4s between retries
+        status_forcelist=[429, 500, 502, 503, 504],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+
+    # 2. Add a realistic User-Agent to avoid IP/Bot bans
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+
+    payload = {
+        "keywords": "remote", 
+        "location": "",
+        "searchMode": 1 
+    }
+
     try:
-        print(f"📡 Connecting to Jooble API via {api_url}...")
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        print(f"📡 Connecting to Jooble API...")
         
-        headers = {
-            "Content-type": "application/json",
-            "Accept": "application/json"
-        }
-        
-        # Jooble expects a JSON body
-        payload = {
-            "keywords": "remote", 
-            "location": "",
-            "searchMode": 1 # Optional: improves search relevance
-        }
-        
-        response = requests.post(
+        # Note: Keeping verify=True is safer. If you get SSL errors, 
+        # ensure your 'certifi' package is updated: pip install --upgrade certifi
+        response = session.post(
             api_url, 
             json=payload, 
             headers=headers,
-            timeout=20, 
-            verify=True
+            timeout=15
         )
-        
-        # Log the status for debugging
-        print(f"📡 Server Response: {response.status_code}")
 
         if response.status_code == 200:
             data = response.json()
-            # Jooble returns 'jobs' as a list within the root object
             jobs = data.get('jobs', [])
-            remaining = response.headers.get('x-ratelimit-remaining', 'N/A')
-            print(f"📊 Jooble Quota Remaining: {remaining}")
             print(f"✅ Success! Fetched {len(jobs)} jobs.")
             return jobs
             
-        elif response.status_code == 404:
-            print(f"❌ Error 404: Endpoint not found.")
-            print(f"💡 Troubleshooting: Ensure your key '{JOOBLE_KEY}' is a valid UUID and not the full URL.")
-        elif response.status_code == 401:
-            print("❌ Error 401: Unauthorized. Your API key is likely invalid.")
+        elif response.status_code == 403:
+            print("❌ Error 403: Forbidden. Your IP might be temporarily throttled or blocked.")
         elif response.status_code == 429:
-            print("❌ Error 429: QUOTA FULL!")
+            print("❌ Error 429: Rate limit exceeded.")
         else:
-            print(f"❌ Jooble Error {response.status_code}: {response.text[:200]}")
+            print(f"❌ Server returned status {response.status_code}")
             
         return []
             
+    except requests.exceptions.SSLError as ssl_err:
+        print(f"🔐 SSL Handshake Error: {ssl_err}. Try updating certifi or checking system clock.")
+    except requests.exceptions.ConnectionError as conn_err:
+        print(f"🌐 Connection Error: {conn_err}. Check your internet or VPN/Proxy settings.")
     except Exception as e:
-        print(f"❌ Fatal Fetch Error: {e}")
-        return []
+        print(f"❌ Fatal Error: {e}")
+    
+    return []
 
 def generate_job_page(job):
     """Generates a standalone HTML page for a specific job."""
