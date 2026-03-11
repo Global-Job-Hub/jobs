@@ -5,47 +5,37 @@ import requests
 import datetime
 import re
 import hashlib
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
+import random
 
 # --- CONFIG ---
 SITE_URL = "https://global-job-hub.github.io/jobs/"
 JOOBLE_KEY = os.environ.get("JOOBLE_API_KEY")
-GOOGLE_CREDS = os.environ.get("GOOGLE_CREDENTIALS")
 
 ADS = {
-    "AD_728x90": os.environ.get("AD_728x90", ""),
-    "AD_300x250": os.environ.get("AD_300x250", ""),
-    "AD_468x60": os.environ.get("AD_468x60", ""),
-    "AD_160x600": os.environ.get("AD_160x600", ""),
-    "AD_160x300": os.environ.get("AD_160x300", ""),
-    "AD_320x50": os.environ.get("AD_320x50", ""),
+    "AD_728X90": os.environ.get("AD_728X90", ""),
+    "AD_300X250": os.environ.get("AD_300X250", ""),
+    "AD_468X60": os.environ.get("AD_468X60", ""),
+    "AD_160X600": os.environ.get("AD_160X600", ""),
+    "AD_160X300": os.environ.get("AD_160X300", ""),
+    "AD_320X50": os.environ.get("AD_320X50", ""),
     "AD_NATIVE": os.environ.get("AD_NATIVE", "")
 }
 
-# 1. HELPER FUNCTIONS
-def get_ultra_sensitive_hash(job):
-    job_string = json.dumps(job, sort_keys=True)
-    return hashlib.sha256(job_string.encode('utf-8')).hexdigest()
+def get_related_jobs(current_filename):
+    """Scans the directory for other HTML job files to create a recommendation grid."""
+    job_files = [f for f in os.listdir(".") if f.endswith(".html") and "-" in f and f != current_filename]
+    random.shuffle(job_files)
+    selected = job_files[:4]
+    
+    html_grid = '<div class="related-grid">'
+    for f in selected:
+        # Create a clean title from the filename (e.g., "software-engineer-123.html" -> "Software Engineer")
+        display_name = f.split("-")[:-1]
+        display_name = " ".join(display_name).title()
+        html_grid += f'<a href="{SITE_URL}{f}" class="related-card">{display_name}</a>'
+    html_grid += '</div>'
+    return html_grid
 
-def slugify(text):
-    text = str(text).lower()
-    return re.sub(r'[-\s]+', '-', re.sub(r'[^\w\s-]', '', text)).strip('-')
-
-def notify_google(url, action="URL_UPDATED"):
-    if not GOOGLE_CREDS:
-        print(f"⚠️ No Google Creds for: {url}")
-        return
-    try:
-        info = json.loads(GOOGLE_CREDS)
-        creds = service_account.Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/indexing"])
-        service = build("indexing", "v3", credentials=creds)
-        service.urlNotifications().publish(body={"url": url, "type": action}).execute()
-        print(f"📡 Google Notified ({action}): {url}")
-    except Exception as e:
-        print(f"❌ Indexing Error: {e}")
-
-# 2. THE CORE GENERATOR
 def generate_job_page(job):
     job_id = job.get('id', '0')
     title = job.get('title', 'Job Opening')
@@ -58,103 +48,69 @@ def generate_job_page(job):
     new_hash = get_ultra_sensitive_hash(job)
     filename = f"{slugify(title)}-{job_id}.html"
     expiry_date = (datetime.date.today() + datetime.timedelta(days=30)).isoformat()
-    post_date = datetime.date.today().isoformat()
-
-    if os.path.exists(filename):
-        with open(filename, "r", encoding="utf-8") as f:
-            if f"DATA_HASH:{new_hash}" in f.read():
-                return None 
+    
+    # Generate the Related Jobs HTML
+    related_jobs_html = get_related_jobs(filename)
 
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} at {company}</title>
+    <title>{title} | {company} | Global Job Hub</title>
     <style>
-        body {{ font-family: 'Inter', sans-serif; background: #f0f2f5; margin: 0; }}
-        .header-ad {{ background: #fff; padding: 15px; text-align: center; border-bottom: 1px solid #ddd; }}
-        .layout {{ display: flex; max-width: 1250px; margin: 25px auto; gap: 20px; padding: 0 15px; }}
-        .skyscraper {{ width: 160px; flex-shrink: 0; position: sticky; top: 20px; height: 600px; }}
-        .main-card {{ flex-grow: 1; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e1e4e8; overflow: hidden; }}
-        .job-hero {{ padding: 35px; background: #fff; border-bottom: 1px solid #eee; }}
-        .meta-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px; background: #fafafa; }}
-        .description-area {{ padding: 35px; line-height: 1.7; }}
-        .btn-apply {{ background: #28a745; color: #fff; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; }}
-        .footer-ad {{ position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 1px solid #ddd; text-align: center; padding: 5px 0; }}
-        @media (max-width: 1000px) {{ .skyscraper {{ display: none; }} }}
+        body {{ font-family: 'Inter', sans-serif; background: #f4f7f9; color: #333; margin: 0; padding-bottom: 80px; }}
+        .ad-row {{ text-align: center; padding: 15px; background: #fff; border-bottom: 1px solid #eee; }}
+        .layout {{ display: flex; max-width: 1300px; margin: 20px auto; gap: 20px; padding: 0 15px; }}
+        .sidebar {{ width: 160px; flex-shrink: 0; position: sticky; top: 10px; height: fit-content; }}
+        .main-content {{ flex-grow: 1; background: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }}
+        .meta-info {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; background: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }}
+        .description {{ padding: 30px; line-height: 1.8; min-height: 300px; }}
+        .apply-area {{ text-align: center; padding: 40px; background: #fcfcfc; }}
+        .btn {{ background: #28a745; color: #fff; padding: 18px 45px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 18px; }}
+        
+        /* RELATED JOBS STYLING */
+        .related-section {{ padding: 30px; background: #fff; border-top: 1px solid #eee; }}
+        .related-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }}
+        .related-card {{ padding: 15px; border: 1px solid #e1e4e8; border-radius: 8px; text-decoration: none; color: #007bff; font-weight: 500; font-size: 14px; transition: 0.2s; }}
+        .related-card:hover {{ background: #f0f7ff; border-color: #007bff; }}
+        
+        .sticky-footer {{ position: fixed; bottom: 0; width: 100%; background: #fff; text-align: center; border-top: 1px solid #ddd; padding: 5px 0; z-index: 1000; }}
+        @media (max-width: 1100px) {{ .sidebar {{ display: none; }} .related-grid {{ grid-template-columns: 1fr; }} }}
     </style>
 </head>
 <body>
-    <div class="header-ad">{ADS['AD_728x90']}</div>
+    <div class="ad-row">{ADS['AD_728X90']}</div>
     <div class="layout">
-        <aside class="skyscraper">{ADS['AD_160x600']}</aside>
-        <main class="main-card">
-            <div class="job-hero"><h1>{title}</h1><p>{company}</p></div>
-            <div class="header-ad">{ADS['AD_468x60']}</div>
-            <div class="meta-grid">
-                <div><strong>Location:</strong> {location}</div>
-                <div><strong>Salary:</strong> {salary}</div>
-                <div><strong>Posted:</strong> {post_date}</div>
+        <aside class="sidebar">{ADS['AD_160X600']}</aside>
+        <main class="main-content">
+            <div style="padding:30px;">
+                <h1 style="color:#007bff; margin:0;">{title}</h1>
+                <p style="font-size:18px; color:#666; margin-top:5px;">{company} • {location}</p>
             </div>
-            <div class="description-area">{snippet}</div>
-            <div class="header-ad">{ADS['AD_300x250']}</div>
-            <div style="text-align:center; padding: 40px;"><a href="{link}" class="btn-apply" target="_blank">Apply Now</a></div>
+            <div class="ad-row" style="border:none;">{ADS['AD_468X60']}</div>
+            <div class="meta-info">
+                <div><strong>📍 Location:</strong> {location}</div>
+                <div><strong>💰 Salary:</strong> {salary}</div>
+            </div>
+            <div style="padding:20px; text-align:center;">{ADS['AD_NATIVE']}</div>
+            <div class="description">{snippet}</div>
+            <div class="ad-row" style="border:none; padding:20px;">{ADS['AD_300X250']}</div>
+            <div class="apply-area">
+                <a href="{link}" class="btn" target="_blank">Apply Now &raquo;</a>
+            </div>
+
+            <div class="related-section">
+                <h3 style="margin:0;">Featured Remote Opportunities</h3>
+                {related_jobs_html}
+            </div>
         </main>
-        <aside class="skyscraper">{ADS['AD_160x300']}</aside>
+        <aside class="sidebar">{ADS['AD_160X300']}</aside>
     </div>
-    <div class="footer-ad">{ADS['AD_320x50']}</div>
+    <div class="sticky-footer">{ADS['AD_320X50']}</div>
 </body>
 </html>"""
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html_template)
     return filename
-
-# 3. CLEANUP LOGIC
-def cleanup_numeric_jobs():
-    print("🧹 Cleaning expired jobs...")
-    today = datetime.date.today().isoformat()
-    job_pattern = re.compile(r"-(\d{10,})\.html$")
-    for filename in os.listdir("."):
-        if job_pattern.search(filename):
-            try:
-                with open(filename, "r", encoding="utf-8") as f:
-                    content = f.read()
-                match = re.search(r'', content)
-                if match and today > match.group(1):
-                    print(f"🗑️ Deleting {filename}")
-                    notify_google(f"{SITE_URL}{filename}", "URL_DELETED")
-                    os.remove(filename)
-            except: pass
-
-# 4. MAIN RUNNER
-def main():
-    mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
-    
-    if mode == "--generate":
-        if not JOOBLE_KEY: return
-        res = requests.post(f"https://jooble.org/api/{JOOBLE_KEY}", json={"keywords": "remote", "location": ""})
-        jobs = res.json().get('jobs', [])
-        
-        new_urls = []
-        for job in jobs[:20]:
-            fname = generate_job_page(job)
-            if fname:
-                new_urls.append(f"{SITE_URL}{fname}")
-        
-        with open("pending_urls.txt", "w") as f:
-            for u in new_urls: f.write(u + "\n")
-            
-    elif mode == "--index":
-        if os.path.exists("pending_urls.txt"):
-            with open("pending_urls.txt", "r") as f:
-                for url in f.read().splitlines():
-                    notify_google(url, "URL_UPDATED")
-            os.remove("pending_urls.txt")
-
-    elif mode == "--cleanup":
-        cleanup_numeric_jobs()
-
-if __name__ == "__main__":
-    main()
