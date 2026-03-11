@@ -35,7 +35,10 @@ def slugify(text):
 def load_json_file(filename):
     if os.path.exists(filename):
         with open(filename, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
     return []
 
 def save_json_file(filename, data):
@@ -43,10 +46,13 @@ def save_json_file(filename, data):
         json.dump(data, f, indent=2)
 
 def load_sent_urls():
-    return set(load_json_file(SENT_URLS_FILE))
+    # Ensure we return a set for easy comparison
+    data = load_json_file(SENT_URLS_FILE)
+    return set(data) if isinstance(data, list) else set()
 
-def save_sent_urls(urls):
-    save_json_file(SENT_URLS_FILE, list(urls))
+def save_sent_urls(url_set):
+    # Convert set back to list for JSON storage
+    save_json_file(SENT_URLS_FILE, list(url_set))
 
 # --- Generate individual job page ---
 def generate_job_page(job):
@@ -60,7 +66,7 @@ def generate_job_page(job):
     description = job.get('description', '').replace('"', "'")
     apply_url = job.get('apply_url', '#')
     post_date = job.get('date_posted', datetime.utcnow().strftime("%Y-%m-%d"))
-    valid_through = job.get('valid_through', (datetime.utcnow() + timedelta(days=30)).strftime("%Y-%m-%d"))
+    
     title_slug = slugify(title)
     filename = f"{title_slug}-{job_id}.html"
 
@@ -106,20 +112,22 @@ body {{ font-family:sans-serif; background:#f0f2f5; margin:0; padding:20px; }}
 # --- Send URLs to Google Indexing API ---
 def send_to_google_indexing(urls):
     if not os.path.exists(SERVICE_ACCOUNT_FILE):
-        print(f"Google Service Account JSON not found at {SERVICE_ACCOUNT_FILE}. Skipping indexing.")
-        return set()
+        print(f"Service Account not found. URLs will be marked as 'tracked' but not sent to Google.")
+        return set() # Return empty set so we don't crash, but script continues
+    
     credentials = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/indexing'])
     service = build('indexing', 'v3', credentials=credentials)
+    
     sent = set()
     for url in urls:
         try:
             service.urlNotifications().publish(body={"url": url, "type": "URL_UPDATED"}).execute()
-            print(f"Sent URL to Google: {url}")
+            print(f"Successfully Indexed: {url}")
             sent.add(url)
-            time.sleep(1)
+            time.sleep(1) # Respect rate limits
         except Exception as e:
-            print(f"Failed to send {url}: {e}")
+            print(f"Indexing failed for {url}: {e}")
     return sent
 
 # --- MAIN ---
@@ -133,43 +141,49 @@ def main():
         print(f"File '{input_file}' not found.")
         sys.exit(1)
 
-    print(f"Loading jobs from {input_file}...")
+    # 1. Load existing data
+    index_data = load_json_file(INDEX_FILE)
+    sent_urls = load_sent_urls()
+    
     with open(input_file, "r", encoding="utf-8") as f:
         jobs_list = json.load(f)
 
     generated_urls = []
-    index_data = load_json_file(INDEX_FILE)
-    sent_urls = load_sent_urls()
 
+    # 2. Process jobs
     for job in jobs_list:
         filename, job_entry = generate_job_page(job)
         generated_urls.append(job_entry["url"])
-        print(f"Created: {filename}")
+        
+        # Update index if URL is new
         if not any(j["url"] == job_entry["url"] for j in index_data):
             index_data.append(job_entry)
 
-    # Save updated index and generated URLs
+    # 3. Save Index and Generated list
     save_json_file(INDEX_FILE, index_data)
     save_json_file(GENERATED_URLS_FILE, generated_urls)
 
-    # Determine new URLs to send
+    # 4. Handle Google Indexing and Tracking
     new_urls = [url for url in generated_urls if url not in sent_urls]
+    
     if new_urls:
-        sent_now = send_to_google_indexing(new_urls)
-        sent_urls.update(new_urls)  # track all generated URLs
+        print(f"Found {len(new_urls)} new URLs.")
+        # Attempt to send to Google
+        send_to_google_indexing(new_urls)
+        
+        # IMPORTANT: Even if API fails, we update the set so we track these as "processed"
+        sent_urls.update(new_urls)
     else:
-        print("No new URLs to send. All URLs already tracked.")
+        print("No new URLs to process.")
 
-    # Save sent_urls.json in repo folder
+    # 5. FORCE SAVE the sent_urls.json file
     save_sent_urls(sent_urls)
-    print(f"{SENT_URLS_FILE} updated with {len(sent_urls)} URLs.")
+    print(f"Updated {SENT_URLS_FILE} with {len(sent_urls)} total tracked URLs.")
 
-    # Save pending URLs for review
+    # 6. Save pending text file
     with open(os.path.join(SCRIPT_DIR, "pending_urls.txt"), "w", encoding="utf-8") as f:
         for url in generated_urls:
             f.write(url + "\n")
-    print("Pending URLs saved to pending_urls.txt")
-    print(f"Finished. {len(generated_urls)} job pages generated.")
 
 if __name__ == "__main__":
     main()
