@@ -59,7 +59,7 @@ def generate_job_page(job):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} | {company} | Global Job Hub</title>
     <style>
-        body {{ font-family: 'Inter', sans-serif; background: #f4f7f9; color: #333; margin: 0; padding-bottom: 80px; }}
+        body {{ font-family: 'Inter', sans-serif; background: #f4f7f9; color: #333; margin: 0; padding-bottom: 120px; }}
         .ad-row {{ text-align: center; padding: 15px; background: #fff; border-bottom: 1px solid #eee; }}
         .layout {{ display: flex; max-width: 1300px; margin: 20px auto; gap: 20px; padding: 0 15px; }}
         .sidebar {{ width: 160px; flex-shrink: 0; position: sticky; top: 10px; height: fit-content; }}
@@ -75,7 +75,13 @@ def generate_job_page(job):
         .related-card {{ padding: 15px; border: 1px solid #e1e4e8; border-radius: 8px; text-decoration: none; color: #007bff; font-weight: 500; font-size: 14px; transition: 0.2s; }}
         .related-card:hover {{ background: #f0f7ff; border-color: #007bff; }}
         
-        .sticky-footer {{ position: fixed; bottom: 0; width: 100%; background: #fff; text-align: center; border-top: 1px solid #ddd; padding: 5px 0; z-index: 1000; }}
+        /* FOOTER NAV */
+        .job-footer {{ text-align: center; padding: 20px; background: #fff; border-top: 1px solid #eee; }}
+        .footer-nav {{ margin-bottom: 15px; }}
+        .footer-nav a {{ color: #666; text-decoration: none; margin: 0 10px; font-size: 13px; }}
+        .footer-nav a:hover {{ color: #007bff; }}
+
+        .sticky-footer {{ position: fixed; bottom: 0; width: 100%; background: #fff; text-align: center; border-top: 1px solid #ddd; padding: 5px 0; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }}
         @media (max-width: 1100px) {{ .sidebar {{ display: none; }} .related-grid {{ grid-template-columns: 1fr; }} }}
     </style>
 </head>
@@ -104,10 +110,21 @@ def generate_job_page(job):
                 <h3 style="margin:0;">Featured Remote Opportunities</h3>
                 {related_jobs_html}
             </div>
+
+            <footer class="job-footer">
+                <nav class="footer-nav">
+                    <a href="{SITE_URL}">🏠 Home</a>
+                    <a href="{SITE_URL}privacy-policy.html">🛡️ Privacy Policy</a>
+                    <a href="{SITE_URL}terms-of-service.html">⚖️ Terms of Service</a>
+                </nav>
+                <p style="font-size: 11px; color: #999; margin: 0;">© 2026 Global Job Hub</p>
+            </footer>
         </main>
         <aside class="sidebar">{ADS['AD_160X300']}</aside>
     </div>
-    <div class="sticky-footer">{ADS['AD_320X50']}</div>
+    <div class="sticky-footer">
+        <div class="ad-row" style="margin:0; border:none;">{ADS['AD_320X50']}</div>
+    </div>
 </body>
 </html>"""
 
