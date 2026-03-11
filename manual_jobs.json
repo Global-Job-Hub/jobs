@@ -3,76 +3,8 @@
     "id": "job-001",
     "title": "Sales Representative - No Experience Needed - Work From Home",
     "company_name": "Trenkle Agency",
-    "description": "Sales Representative - No Experience Needed - Work From Home",
-    "apply_url": "https://example.com/apply/001",
-    "date_posted": "2026-03-11",
-    "valid_through": "2026-04-10",
-    "employment_type": "FULL_TIME",
-    "job_location": {
-      "address": {
-        "addressLocality": "United States",
-        "addressRegion": "Remote",
-        "addressCountry": "US"
-      }
-    }
-  },
-  {
-    "id": "job-002",
-    "title": "Work from home - Remote Sales (Entry Level, No Experience Needed)",
-    "company_name": "The Stephens Agency",
-    "description": "Work from home - Remote Sales ( Entry Level, No Experience Needed)",
-    "apply_url": "https://example.com/apply/002",
-    "date_posted": "2026-03-11",
-    "valid_through": "2026-04-10",
-    "employment_type": "FULL_TIME",
-    "job_location": {
-      "address": {
-        "addressLocality": "United States",
-        "addressRegion": "Remote",
-        "addressCountry": "US"
-      }
-    }
-  },
-  {
-    "id": "job-003",
-    "title": "Customer Support – Work From Home",
-    "company_name": "McLean Family Financial",
-    "description": "Customer Support – Work From Home",
-    "apply_url": "https://example.com/apply/003",
-    "date_posted": "2026-03-11",
-    "valid_through": "2026-04-10",
-    "employment_type": "FULL_TIME",
-    "job_location": {
-      "address": {
-        "addressLocality": "United States",
-        "addressRegion": "Remote",
-        "addressCountry": "US"
-      }
-    }
-  },
-  {
-    "id": "job-004",
-    "title": "Sales Representative - No Experience Necessary - Work from Home",
-    "company_name": "The Hirsh Agency",
-    "description": "Sales Representative - No Experience Necessary - Work from Home",
-    "apply_url": "https://example.com/apply/004",
-    "date_posted": "2026-03-11",
-    "valid_through": "2026-04-10",
-    "employment_type": "FULL_TIME",
-    "job_location": {
-      "address": {
-        "addressLocality": "United States",
-        "addressRegion": "Remote",
-        "addressCountry": "US"
-      }
-    }
-  },
-  {
-    "id": "job-005",
-    "title": "Sales Representative - No Experience Needed - Remote",
-    "company_name": "Hirelyst Financial",
-    "description": "Sales Representative - No Experience Needed - Remote",
-    "apply_url": "https://example.com/apply/005",
+    "description": "We are looking for a Sales Representative with no prior experience required. Work from home with flexible hours and full training provided.",
+    "apply_url": "https://www.linkedin.com/jobs/view/4366048101",
     "date_posted": "2026-03-11",
     "valid_through": "2026-04-10",
     "employment_type": "FULL_TIME",
