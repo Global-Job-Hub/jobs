@@ -1,147 +1,202 @@
 import os
 import sys
 import json
-import requests
-import datetime
-import time
 import re
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
+from datetime import datetime, timedelta
 
 # --- CONFIG ---
+# This is the base URL where your job pages will be hosted
 SITE_URL = "https://global-job-hub.github.io/jobs/"
-JOOBLE_KEY = os.environ.get("JOOBLE_API_KEY")
-GOOGLE_CREDS = os.environ.get("GOOGLE_CREDENTIALS")
 
-# FIXED TYPO: This name must match exactly in the f-string below
+# Ad Placeholder for your template - used multiple times in the layout
 AD_PLACEHOLDER = '<div class="ad-slot-placeholder" style="min-height:100px; background:#f9f9f9; display:flex; align-items:center; justify-content:center; border:1px dashed #ddd; font-size:12px; color:#aaa;">Advertisement</div>'
 
 def slugify(text):
+    """Converts job titles into URL-friendly filenames."""
     text = str(text).lower()
     text = re.sub(r'[^\w\s-]', '', text)
     return re.sub(r'[-\s]+', '-', text).strip('-')
 
 def generate_job_page(job):
+    """Generates the HTML file with Google JobPosting Schema and Ad slots."""
     job_id = job.get('id', '0')
     title = job.get('title', 'Job Opening')
-    company = job.get('company', 'Hiring Company')
-    location = job.get('location', 'Remote')
-    snippet = job.get('snippet', '').replace('"', "'")
-    link = job.get('link', '#')
+    company = job.get('company_name', 'Hiring Company')
     
-    post_date = datetime.date.today().isoformat()
-    expiry_date = (datetime.date.today() + datetime.timedelta(days=60)).isoformat()
+    # Extract location from your nested JSON structure
+    loc_data = job.get('job_location', {}).get('address', {})
+    city = loc_data.get('addressLocality', 'Remote')
+    country = loc_data.get('addressCountry', 'US')
+    location_str = f"{city}, {country}"
     
+    # Clean description for meta tags and schema
+    description = job.get('description', '').replace('"', "'")
+    apply_url = job.get('apply_url', '#')
+    
+    # Dates for the posting
+    post_date = job.get('date_posted', datetime.utcnow().strftime("%Y-%m-%d"))
+    valid_through = job.get('valid_through', (datetime.utcnow() + timedelta(days=30)).strftime("%Y-%m-%d"))
+    
+    # Filename generation
     title_slug = slugify(title)
     filename = f"{title_slug}-{job_id}.html"
     
+    # The HTML Content
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} | {company} - Job Details</title>
-    <script src="{SITE_URL}js/ads-config.js" defer></script>
+    
     <script type="application/ld+json">
     {{
       "@context" : "https://schema.org/",
       "@type" : "JobPosting",
       "title" : "{title}",
-      "description" : "{snippet}",
-      "identifier": {{ "@type": "PropertyValue", "name": "{company}", "value": "{job_id}" }},
+      "description" : "{description}",
+      "identifier": {{
+        "@type": "PropertyValue",
+        "name": "{company}",
+        "value": "{job_id}"
+      }},
       "datePosted" : "{post_date}",
-      "validThrough" : "{expiry_date}T00:00",
-      "employmentType" : "FULL_TIME",
-      "hiringOrganization" : {{ "@type" : "Organization", "name" : "{company}" }},
-      "jobLocation": {{ "@type": "Place", "address": {{ "@type": "PostalAddress", "addressLocality": "{location}", "addressCountry": "US" }} }}
+      "validThrough" : "{valid_through}T23:59",
+      "employmentType" : "{job.get('employment_type', 'FULL_TIME')}",
+      "hiringOrganization" : {{
+        "@type" : "Organization",
+        "name" : "{company}",
+        "sameAs" : "{SITE_URL}"
+      }},
+      "jobLocation": {{
+        "@type": "Place",
+        "address": {{
+          "@type": "PostalAddress",
+          "addressLocality": "{city}",
+          "addressCountry": "{country}"
+        }}
+      }}
     }}
     </script>
+
     <style>
-        body {{ font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f9; margin: 0; padding: 10px; color: #333; }}
-        .wrapper {{ max-width: 850px; margin: 20px auto; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e1e4e8; }}
-        table {{ width: 100%; border-collapse: collapse; }}
-        th, td {{ padding: 18px 25px; text-align: left; border-bottom: 1px solid #f0f0f0; vertical-align: top; }}
-        th {{ background: #f9f9f9; width: 35%; color: #666; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }}
-        td {{ line-height: 1.6; font-size: 16px; }}
-        .ad-row-container {{ padding: 10px; text-align: center; border-bottom: 1px solid #f0f0f0; background: #fff; }}
-        .apply-btn {{ background: #28a745; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; transition: 0.3s; }}
+        body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }}
+        .main-container {{ max-width: 900px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }}
+        .header {{ background: #007bff; color: white; padding: 30px; text-align: center; }}
+        .content-table {{ width: 100%; border-collapse: collapse; }}
+        .content-table th, .content-table td {{ padding: 20px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }}
+        .content-table th {{ background: #fafafa; width: 30%; color: #666; font-weight: 600; }}
+        .description-box {{ max-height: 500px; overflow-y: auto; line-height: 1.8; }}
+        .ad-section {{ padding: 15px; text-align: center; background: #fff; border-bottom: 1px solid #eee; }}
+        .apply-container {{ padding: 40px; text-align: center; }}
+        .apply-btn {{ background: #28a745; color: white; padding: 18px 35px; text-decoration: none; border-radius: 5px; font-size: 18px; font-weight: bold; transition: background 0.2s; display: inline-block; }}
+        .apply-btn:hover {{ background: #218838; }}
+        footer {{ background: #343a40; color: #ccc; padding: 20px; text-align: center; font-size: 14px; }}
+        footer a {{ color: #fff; text-decoration: none; margin: 0 10px; }}
     </style>
 </head>
 <body>
-<div class="wrapper">
-    <div class="ad-row-container">{AD_PLACEHOLDER}</div>
-    <table>
-        <tr><th>Job Title</th><td><strong style="color:#007bff; font-size:1.2em;">{title}</strong></td></tr>
-        <tr><th>Company</th><td>{company}</td></tr>
-        <tr><td colspan="2" class="ad-row-container">{AD_PLACEHOLDER}</td></tr>
-        <tr><th>Description</th><td><div style="max-height:400px; overflow-y:auto;">{snippet}</div></td></tr>
-        <tr><th>Location</th><td>{location}, US</td></tr>
-        <tr><td colspan="2" class="ad-row-container">{AD_PLACEHOLDER}</td></tr>
-        <tr><th>Post Date</th><td>{post_date}</td></tr>
-        <tr><th>Valid Until</th><td>{expiry_date}</td></tr>
-        <tr><td colspan="2" class="ad-row-container">{AD_PLACEHOLDER}</td></tr>
+
+<div class="main-container">
+    <div class="header">
+        <h1 style="margin:0;">{title}</h1>
+        <p style="margin:10px 0 0;">{company} • {location_str}</p>
+    </div>
+
+    <div class="ad-section">{AD_PLACE_HOLDER}</div>
+
+    <table class="content-table">
         <tr>
-            <th>Action</th>
-            <td><a href="{link}" class="apply-btn" target="_blank">Apply Now &raquo;</a></td>
+            <th>Company</th>
+            <td><strong>{company}</strong></td>
+        </tr>
+        <tr>
+            <th>Job Location</th>
+            <td>{location_str}</td>
+        </tr>
+        
+        <tr><td colspan="2" class="ad-section">{AD_PLACEHOLDER}</td></tr>
+
+        <tr>
+            <th>Job Description</th>
+            <td><div class="description-box">{description}</div></td>
+        </tr>
+        <tr>
+            <th>Employment Type</th>
+            <td>{job.get('employment_type', 'Full-Time')}</td>
+        </tr>
+
+        <tr><td colspan="2" class="ad-section">{AD_PLACEHOLDER}</td></tr>
+
+        <tr>
+            <th>Posted On</th>
+            <td>{post_date}</td>
+        </tr>
+        <tr>
+            <th>Closing Date</th>
+            <td>{valid_through}</td>
         </tr>
     </table>
-    <div class="ad-row-container">{AD_PLACEHOLDER}</div>
-    <footer style="text-align:center; padding:25px; font-size:12px; color:#999; background:#fafafa;">
-        <p>© 2026 Global Job Hub</p>
-        <a href="{SITE_URL}privacy-policy.html">Privacy Policy</a> | 
-        <a href="{SITE_URL}terms-of-service.html">Terms of Service</a> |
-        <a href="{SITE_URL}contact.html">Contact Us</a>
+
+    <div class="ad-section">{AD_PLACEHOLDER}</div>
+
+    <div class="apply-container">
+        <p>Interested in this position? Click the button below to apply directly on the official platform.</p>
+        <a href="{apply_url}" class="apply-btn" target="_blank">Apply Now &raquo;</a>
+    </div>
+
+    <footer>
+        <p>© 2026 Global Job Hub. All rights reserved.</p>
+        <p>
+            <a href="{SITE_URL}">Home</a> | 
+            <a href="{SITE_URL}privacy.html">Privacy Policy</a> | 
+            <a href="{SITE_URL}contact.html">Contact</a>
+        </p>
     </footer>
 </div>
+
 </body>
 </html>"""
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html_template)
+    
     return filename
 
 def main():
-    mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
-    if mode == "--generate":
-        print("🚀 Fetching jobs...")
-        if not JOOBLE_KEY:
-            print("❌ Error: JOOBLE_API_KEY missing.")
-            return
-        url = f"https://jooble.org/api/{JOOBLE_KEY}"
-        res = requests.post(url, json={"keywords": "remote", "location": ""})
-        jobs = res.json().get('jobs', [])
-        new_urls = []
-        for job in jobs[:20]:
-            fname = generate_job_page(job)
-            new_urls.append(f"{SITE_URL}{fname}")
-        with open("pending_urls.txt", "w") as f:
-            for u in new_urls: f.write(u + "\n")
-        print(f"✅ {len(new_urls)} Pages Generated.")
-    elif mode == "--index":
-        if not GOOGLE_CREDS:
-            print("❌ Error: GOOGLE_CREDENTIALS missing.")
-            return
-        if not os.path.exists("pending_urls.txt"):
-            print("ℹ️ No pending URLs.")
-            return
-        print("🔗 Notifying Google Indexing API...")
+    # Expecting the JSON file path as an argument
+    if len(sys.argv) < 2:
+        print("❌ Usage: python content_manager.py your_jobs_file.json")
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+    
+    if not os.path.exists(input_file):
+        print(f"❌ Error: File '{input_file}' not found.")
+        sys.exit(1)
+
+    print(f"📖 Loading jobs from {input_file}...")
+    with open(input_file, "r", encoding="utf-8") as f:
+        jobs_list = json.load(f)
+
+    # We will store the full URLs of generated pages here to pass to the indexer
+    generated_urls = []
+
+    for job in jobs_list:
         try:
-            info = json.loads(GOOGLE_CREDS)
-            creds = service_account.Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/indexing"])
-            service = build("indexing", "v3", credentials=creds)
-            with open("pending_urls.txt", "r") as f:
-                for url in f:
-                    target = url.strip()
-                    try:
-                        if requests.get(target).status_code == 200:
-                            service.urlNotifications().publish(body={"url": target, "type": "URL_UPDATED"}).execute()
-                            print(f"🚀 Indexed: {target}")
-                        else:
-                            print(f"⏳ Skipping {target} (Not live yet)")
-                    except Exception as e:
-                        print(f"❌ Error indexing {target}: {e}")
+            filename = generate_job_page(job)
+            full_url = f"{SITE_URL}{filename}"
+            generated_urls.append(full_url)
+            print(f"📄 Created: {filename}")
         except Exception as e:
-            print(f"❌ Critical Auth Error: {e}")
+            print(f"⚠️ Failed to process job {job.get('id')}: {e}")
+
+    # Write all URLs to pending_urls.txt for the indexer.py script
+    with open("pending_urls.txt", "w", encoding="utf-8") as f:
+        for url in generated_urls:
+            f.write(url + "\n")
+
+    print(f"✅ Finished. {len(generated_urls)} job pages ready for indexing.")
 
 if __name__ == "__main__":
     main()
