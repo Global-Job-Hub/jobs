@@ -1,1 +1,202 @@
-[]
+[
+  {
+    "id": "job-001",
+    "title": "Merchandiser",
+    "company": "Bimbo Bakeries USA, Inc.",
+    "location": "Porterville, US",
+    "url": "https://global-job-hub.github.io/jobs/merchandiser-job-001.html",
+    "date_posted": "2026-02-24"
+  },
+  {
+    "id": "job-002",
+    "title": "Field Merchandising Representative",
+    "company": "Bimbo Bakeries USA, Inc.",
+    "location": "Lakewood, US",
+    "url": "https://global-job-hub.github.io/jobs/field-merchandising-representative-job-002.html",
+    "date_posted": "2026-03-01"
+  },
+  {
+    "id": "job-003",
+    "title": "Staff Product Data Scientist, Workspace Monetization",
+    "company": "Google",
+    "location": "Kirkland, US",
+    "url": "https://global-job-hub.github.io/jobs/staff-product-data-scientist-workspace-monetization-job-003.html",
+    "date_posted": "2026-02-21"
+  },
+  {
+    "id": "job-004",
+    "title": "Maintenance Technician",
+    "company": "Bimbo Bakeries USA, Inc.",
+    "location": "Albany, US",
+    "url": "https://global-job-hub.github.io/jobs/maintenance-technician-job-004.html",
+    "date_posted": "2026-03-03"
+  },
+  {
+    "id": "job-005",
+    "title": "Class A Driver",
+    "company": "Bimbo Bakeries USA",
+    "location": "Portland, US",
+    "url": "https://global-job-hub.github.io/jobs/class-a-driver-job-005.html",
+    "date_posted": "2026-03-03"
+  },
+  {
+    "id": "job-011",
+    "title": "Frontend Developer",
+    "company": "Web Solutions",
+    "location": "Los Angeles, US",
+    "url": "https://global-job-hub.github.io/jobs/frontend-developer-job-011.html",
+    "date_posted": "2026-03-01"
+  },
+  {
+    "id": "job-012",
+    "title": "Backend Developer",
+    "company": "TechWorks",
+    "location": "Seattle, US",
+    "url": "https://global-job-hub.github.io/jobs/backend-developer-job-012.html",
+    "date_posted": "2026-03-02"
+  },
+  {
+    "id": "job-013",
+    "title": "UI/UX Designer",
+    "company": "DesignHub",
+    "location": "Austin, US",
+    "url": "https://global-job-hub.github.io/jobs/uiux-designer-job-013.html",
+    "date_posted": "2026-03-03"
+  },
+  {
+    "id": "job-014",
+    "title": "Data Scientist",
+    "company": "Data Insights",
+    "location": "Boston, US",
+    "url": "https://global-job-hub.github.io/jobs/data-scientist-job-014.html",
+    "date_posted": "2026-03-04"
+  },
+  {
+    "id": "job-015",
+    "title": "DevOps Engineer",
+    "company": "CloudOps",
+    "location": "Chicago, US",
+    "url": "https://global-job-hub.github.io/jobs/devops-engineer-job-015.html",
+    "date_posted": "2026-03-05"
+  },
+  {
+    "id": "job-016",
+    "title": "QA Engineer",
+    "company": "SoftTesters",
+    "location": "Denver, US",
+    "url": "https://global-job-hub.github.io/jobs/qa-engineer-job-016.html",
+    "date_posted": "2026-03-06"
+  },
+  {
+    "id": "job-017",
+    "title": "Product Manager",
+    "company": "InnovateX",
+    "location": "San Francisco, US",
+    "url": "https://global-job-hub.github.io/jobs/product-manager-job-017.html",
+    "date_posted": "2026-03-07"
+  },
+  {
+    "id": "job-018",
+    "title": "Mobile App Developer",
+    "company": "AppForge",
+    "location": "Miami, US",
+    "url": "https://global-job-hub.github.io/jobs/mobile-app-developer-job-018.html",
+    "date_posted": "2026-03-08"
+  },
+  {
+    "id": "job-019",
+    "title": "Cybersecurity Analyst",
+    "company": "SecureNet",
+    "location": "Washington, US",
+    "url": "https://global-job-hub.github.io/jobs/cybersecurity-analyst-job-019.html",
+    "date_posted": "2026-03-09"
+  },
+  {
+    "id": "job-020",
+    "title": "Marketing Specialist",
+    "company": "BrandWave",
+    "location": "New York, US",
+    "url": "https://global-job-hub.github.io/jobs/marketing-specialist-job-020.html",
+    "date_posted": "2026-03-10"
+  },
+  {
+    "id": "job-021",
+    "title": "Cloud Solutions Architect",
+    "company": "Nimbus Technologies",
+    "location": "Seattle, US",
+    "url": "https://global-job-hub.github.io/jobs/cloud-solutions-architect-job-021.html",
+    "date_posted": "2026-03-11"
+  },
+  {
+    "id": "job-022",
+    "title": "Senior Java Developer",
+    "company": "TechForge Inc.",
+    "location": "Dallas, US",
+    "url": "https://global-job-hub.github.io/jobs/senior-java-developer-job-022.html",
+    "date_posted": "2026-03-12"
+  },
+  {
+    "id": "job-023",
+    "title": "Network Administrator",
+    "company": "SecureWave Networks",
+    "location": "Atlanta, US",
+    "url": "https://global-job-hub.github.io/jobs/network-administrator-job-023.html",
+    "date_posted": "2026-03-13"
+  },
+  {
+    "id": "job-024",
+    "title": "Financial Analyst",
+    "company": "CapitalCore Consulting",
+    "location": "Charlotte, US",
+    "url": "https://global-job-hub.github.io/jobs/financial-analyst-job-024.html",
+    "date_posted": "2026-03-14"
+  },
+  {
+    "id": "job-025",
+    "title": "HR Business Partner",
+    "company": "PeopleFirst Solutions",
+    "location": "Phoenix, US",
+    "url": "https://global-job-hub.github.io/jobs/hr-business-partner-job-025.html",
+    "date_posted": "2026-03-15"
+  },
+  {
+    "id": "job-026",
+    "title": "Graphic Designer",
+    "company": "BrandVision Studio",
+    "location": "Denver, US",
+    "url": "https://global-job-hub.github.io/jobs/graphic-designer-job-026.html",
+    "date_posted": "2026-03-16"
+  },
+  {
+    "id": "job-027",
+    "title": "Operations Manager",
+    "company": "EfficientOps LLC",
+    "location": "Miami, US",
+    "url": "https://global-job-hub.github.io/jobs/operations-manager-job-027.html",
+    "date_posted": "2026-03-17"
+  },
+  {
+    "id": "job-028",
+    "title": "Business Development Specialist",
+    "company": "GrowthWave Partners",
+    "location": "Miami, US",
+    "url": "https://global-job-hub.github.io/jobs/business-development-specialist-job-028.html",
+    "date_posted": "2026-03-18"
+  },
+  {
+    "id": "job-029",
+    "title": "Content Writer",
+    "company": "Ink & Ideas Media",
+    "location": "Baltimore, US",
+    "url": "https://global-job-hub.github.io/jobs/content-writer-job-029.html",
+    "date_posted": "2026-03-19"
+  },
+  {
+    "id": "job-030",
+    "title": "Customer Service Supervisor",
+    "company": "ServiceFirst Corp.",
+    "location": "Charlotte, US",
+    "url": "https://global-job-hub.github.io/jobs/customer-service-supervisor-job-030.html",
+    "date_posted": "2026-03-20"
+  }
+]
