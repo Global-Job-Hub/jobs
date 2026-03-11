@@ -9,23 +9,44 @@
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
     
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f7f9; margin: 0; color: #333; display: flex; flex-direction: column; align-items: center; }
+        :root { --primary: #007bff; --bg: #f4f7f9; --text: #333; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; text-align: center; background-color: var(--bg); margin: 0; color: var(--text); display: flex; flex-direction: column; align-items: center; }
+        
+        /* AD STYLING */
         .ad-center { margin: 15px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
         .ad-label { display: block; font-size: 10px; color: #bbb; text-transform: uppercase; margin-bottom: 5px; width: 100%; }
-        .main-layout { display: flex; justify-content: center; align-items: flex-start; gap: 20px; width: 100%; max-width: 1200px; margin-top: 20px; }
-        .container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 550px; border: 1px solid #e1e4e8; position: relative; z-index: 2; }
+        
+        /* LAYOUT */
+        .main-layout { display: flex; justify-content: center; align-items: flex-start; gap: 20px; width: 100%; max-width: 1300px; margin-top: 20px; padding: 0 15px; box-sizing: border-box; }
+        .container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 600px; border: 1px solid #e1e4e8; position: relative; z-index: 2; }
+        
+        /* SIDEBARS */
         .skyscraper { width: 160px; min-height: 600px; background: #fff; border: 1px solid #e1e4e8; border-radius: 8px; display: none; overflow: hidden; position: sticky; top: 10px; }
         @media (min-width: 1000px) { .skyscraper { display: block; } }
-        .sticky-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; z-index: 1000; padding: 5px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #007bff; margin-bottom: 10px; font-size: 2.2rem; }
-        .search-container { position: relative; width: 100%; margin-top: 20px; }
-        #jobSearch { width: 100%; padding: 15px 20px; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; outline: none; box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        #results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-radius: 0 0 10px 10px; border: 1px solid #ddd; display: none; z-index: 1000; text-align: left; max-height: 350px; overflow-y: auto; }
-        .result-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #f8f8f8; }
-        .result-item:hover { background: #f0f7ff; }
-        .trending { margin: 20px 0; font-size: 13px; color: #999; }
-        .trending span { color: #007bff; cursor: pointer; text-decoration: underline; margin: 0 5px; }
-        footer { margin-top: 30px; font-size: 12px; color: #bbb; padding-bottom: 80px; }
+        
+        /* SEARCH BOX */
+        h1 { color: var(--primary); margin-bottom: 10px; font-size: 2.5rem; letter-spacing: -1px; }
+        .search-container { position: relative; width: 100%; margin-top: 25px; }
+        #jobSearch { width: 100%; padding: 18px 25px; border-radius: 12px; border: 2px solid #eee; font-size: 17px; outline: none; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        #jobSearch:focus { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,123,255,0.1); }
+        
+        #results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-radius: 0 0 12px 12px; border: 1px solid #ddd; display: none; z-index: 1000; text-align: left; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .result-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #f8f8f8; transition: 0.2s; }
+        .result-item:hover { background: #f0f7ff; padding-left: 25px; color: var(--primary); }
+        
+        .trending { margin: 20px 0; font-size: 14px; color: #777; }
+        .trending span { color: var(--primary); cursor: pointer; text-decoration: none; margin: 0 5px; font-weight: 500; }
+        .trending span:hover { text-decoration: underline; }
+
+        /* FOOTER & BUTTONS */
+        footer { margin-top: 40px; width: 100%; border-top: 1px solid #eee; padding: 30px 0 120px 0; }
+        .footer-links { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+        .footer-btn { font-size: 13px; color: #555; text-decoration: none; padding: 10px 18px; border: 1px solid #e1e4e8; border-radius: 25px; background: #fff; transition: 0.2s; }
+        .footer-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+        .copyright { font-size: 12px; color: #bbb; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* STICKY FOOTER */
+        .sticky-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; z-index: 9999; padding: 8px 0; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); }
     </style>
 </head>
 <body>
@@ -43,34 +64,41 @@
 
         <div class="container">
             <h1>🌐 Global Job Hub</h1>
-            <p>Connecting you to millions of opportunities worldwide.</p>
+            <p style="color:#666; font-size: 1.1rem;">Your gateway to remote and international career opportunities.</p>
 
             <div class="ad-center">
                 {ADS['AD_468X60']}
             </div>
 
             <div class="search-container">
-                <input type="text" id="jobSearch" placeholder="Search by title, company, or location..." autocomplete="off">
+                <input type="text" id="jobSearch" placeholder="Search job title, skills, or location..." autocomplete="off">
                 <div id="results"></div>
             </div>
 
             <div class="trending">
-                Trending: <span onclick="quickSearch('Remote')">Remote</span>, 
+                🔥 Trending: <span onclick="quickSearch('Remote')">Remote</span>, 
                 <span onclick="quickSearch('Developer')">Developer</span>,
-                <span onclick="quickSearch('Manager')">Manager</span>
+                <span onclick="quickSearch('Marketing')">Marketing</span>
             </div>
 
             <div class="ad-center">
                 {ADS['AD_NATIVE']}
             </div>
 
-            <div class="ad-center">
-                <span class="ad-label">Recommended for you</span>
+            <div class="ad-center" style="margin-top:30px;">
+                <span class="ad-label">Specially Recommended</span>
                 {ADS['AD_300X250']}
             </div>
 
             <footer>
-                © 2026 Global Job Hub | <a href="privacy.html">Privacy Policy</a>
+                <div class="footer-links">
+                    <a href="privacy-policy.html" class="footer-btn">🛡️ Privacy Policy</a>
+                    <a href="terms-of-service.html" class="footer-btn">⚖️ Terms of Service</a>
+                    <a href="mailto:support@globaljobhub.com" class="footer-btn">✉️ Contact Us</a>
+                </div>
+                <div class="copyright">
+                    © 2026 Global Job Hub • Global Career Solutions
+                </div>
             </footer>
         </div>
 
@@ -91,17 +119,27 @@
         const results = document.getElementById('results');
         let fuse;
 
+        // Load the Search Index
         fetch('jobs_index.json')
             .then(res => res.json())
             .then(data => {
-                fuse = new Fuse(data, { keys: ['t', 'c', 'l'], threshold: 0.4 });
+                // Initialize Fuse.js for fuzzy searching
+                fuse = new Fuse(data, { 
+                    keys: ['t', 'c', 'l'], // title, company, location
+                    threshold: 0.3,
+                    distance: 100
+                });
             })
-            .catch(err => console.error("Search index failed to load."));
+            .catch(err => console.error("Search index failed. Ensure jobs_index.json exists."));
 
         input.addEventListener('input', () => {
             const val = input.value.trim();
             results.innerHTML = '';
-            if (!fuse || val.length < 2) { results.style.display = 'none'; return; }
+            if (!fuse || val.length < 2) { 
+                results.style.display = 'none'; 
+                return; 
+            }
+            
             const searchResult = fuse.search(val).slice(0, 10);
             if (searchResult.length > 0) {
                 results.style.display = 'block';
@@ -113,10 +151,18 @@
                     div.onmousedown = () => window.location.href = job.u;
                     results.appendChild(div);
                 });
+            } else {
+                results.style.display = 'none';
             }
         });
+
+        // Close results when clicking outside
         input.addEventListener('blur', () => setTimeout(() => results.style.display = 'none', 200));
-        function quickSearch(t){ input.value=t; input.dispatchEvent(new Event('input')); }
+        
+        function quickSearch(t) { 
+            input.value = t; 
+            input.dispatchEvent(new Event('input')); 
+        }
     </script>
 </body>
 </html>
