@@ -4,7 +4,8 @@ import json
 import re
 import datetime
 import requests
-import certifi  # Added to handle SSL verification issues
+import certifi
+import urllib3  # Added to suppress insecure warnings
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
@@ -13,7 +14,6 @@ SITE_URL = os.environ.get("SITE_URL", "https://global-job-hub.github.io/jobs/")
 JOOBLE_KEY = os.environ.get("JOOBLE_API_KEY")
 GOOGLE_CREDS = os.environ.get("GOOGLE_CREDENTIALS")
 
-# Ensure the SITE_URL ends with a slash
 if not SITE_URL.endswith('/'):
     SITE_URL += '/'
 
@@ -46,7 +46,7 @@ def notify_google(url):
         print(f"❌ Google Indexing Error: {e}")
 
 def fetch_jobs():
-    """Fetches jobs from Jooble with SSL fix and quota logging."""
+    """Fetches jobs from Jooble with a forced bypass for SSL issues."""
     if not JOOBLE_KEY:
         print("❌ Error: JOOBLE_API_KEY is missing.")
         return []
@@ -55,45 +55,40 @@ def fetch_jobs():
     key_only = JOOBLE_KEY.split('/')[-1]
     api_url = f"https://api.jooble.org/api/{key_only}"
     
-    payload = {"keywords": "remote", "location": ""}
-    
     try:
-        print(f"📡 Connecting to Jooble API (SSL fix active)...")
-        # We use certifi.where() to provide a valid certificate bundle
+        print(f"📡 Connecting to Jooble API (SSL Bypass Enabled)...")
+        # Suppress the InsecureRequestWarning in the console
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
         response = requests.post(
             api_url, 
-            json=payload, 
+            json={"keywords": "remote", "location": ""}, 
             timeout=20, 
-            verify=certifi.where() 
+            verify=False  # This bypasses the local issuer certificate error
         )
         
         print(f"📊 Jooble Quota Remaining: {response.headers.get('x-ratelimit-remaining', 'N/A')}")
         
         if response.status_code == 200:
-            return response.json().get('jobs', [])
+            jobs = response.json().get('jobs', [])
+            print(f"✅ Successfully fetched {len(jobs)} jobs.")
+            return jobs
         else:
             print(f"❌ Jooble Error {response.status_code}: {response.text}")
             return []
             
-    except requests.exceptions.SSLError as e:
-        print(f"❌ SSL Verification failed. Attempting insecure fallback...")
-        # Fallback (use with caution): 
-        # response = requests.post(api_url, json=payload, timeout=20, verify=False)
-        return []
     except Exception as e:
-        print(f"❌ Jooble Fetch Error: {e}")
+        print(f"❌ Fatal Fetch Error: {e}")
         return []
 
 def generate_job_page(job):
     """Generates job HTML and returns filename."""
     job_id = job.get('id', '0')
     title = job.get('title', 'job')
-    # Better slug generation
     clean_name = re.sub(r'[^a-z0-9]', '-', title.lower())
     clean_name = re.sub(r'-+', '-', clean_name).strip('-')
     filename = f"{clean_name}-{job_id}.html"
     
-    # Basic Schema.org inclusion for Google Jobs
     content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -120,7 +115,6 @@ def generate_index():
     """Builds the main index.html with Ads and Search Index."""
     print("🏠 Updating Homepage (index.html)...")
     jobs_for_search = []
-    # Pattern to find job pages we generated
     job_pattern = re.compile(r".*-\d+\.html$")
     
     for filename in os.listdir("."):
@@ -138,13 +132,11 @@ def generate_index():
             except Exception:
                 continue
 
-    # Save search index
     with open("jobs_index.json", "w", encoding="utf-8") as f:
         json.dump(jobs_for_search, f)
 
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # Minimal index template (Replace '...' with your actual HTML logic)
     index_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -176,7 +168,7 @@ def main():
                 full_url = f"{SITE_URL}{filename}"
                 notify_google(full_url)
         else:
-            print("⚠️ No jobs fetched. Checking local index...")
+            print("⚠️ No jobs fetched. Check API Key or Quota above.")
         
         generate_index()
         
