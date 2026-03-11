@@ -253,5 +253,175 @@
         "addressCountry": "US"
       }
     }
+  },
+  {
+    "id": "job-021",
+    "title": "Cloud Solutions Architect",
+    "company_name": "Nimbus Technologies",
+    "description": "Lead design and implementation of scalable cloud architectures across multi‑region deployments.",
+    "apply_url": "https://www.careerbuilder.com/job-details/cloud-solutions-architect-seattle-wa-021",
+    "date_posted": "2026-03-11",
+    "valid_through": "2026-05-11",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Seattle",
+        "addressRegion": "WA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-022",
+    "title": "Senior Java Developer",
+    "company_name": "TechForge Inc.",
+    "description": "Develop enterprise Java applications, optimize code performance, and collaborate with cross‑functional teams.",
+    "apply_url": "https://www.careerbuilder.com/job-details/senior-java-developer-dallas-tx-022",
+    "date_posted": "2026-03-12",
+    "valid_through": "2026-05-12",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Dallas",
+        "addressRegion": "TX",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-023",
+    "title": "Network Administrator",
+    "company_name": "SecureWave Networks",
+    "description": "Manage network infrastructure, configure routers/switches, maintain security policies and network health.",
+    "apply_url": "https://www.careerbuilder.com/job-details/network-administrator-atlanta-ga-023",
+    "date_posted": "2026-03-13",
+    "valid_through": "2026-05-13",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Atlanta",
+        "addressRegion": "GA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-024",
+    "title": "Financial Analyst",
+    "company_name": "CapitalCore Consulting",
+    "description": "Analyze financial performance, prepare models, and produce reports to guide strategic decisions.",
+    "apply_url": "https://www.careerbuilder.com/job-details/financial-analyst-charlotte-nc-024",
+    "date_posted": "2026-03-14",
+    "valid_through": "2026-05-14",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Charlotte",
+        "addressRegion": "NC",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-025",
+    "title": "HR Business Partner",
+    "company_name": "PeopleFirst Solutions",
+    "description": "Partner with business units to implement HR strategies and manage employee relations.",
+    "apply_url": "https://www.careerbuilder.com/job-details/hr-business-partner-phoenix-az-025",
+    "date_posted": "2026-03-15",
+    "valid_through": "2026-05-15",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Phoenix",
+        "addressRegion": "AZ",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-026",
+    "title": "Graphic Designer",
+    "company_name": "BrandVision Studio",
+    "description": "Create visual designs for clients, collaborate with product teams, and develop branded assets.",
+    "apply_url": "https://www.careerbuilder.com/job-details/graphic-designer-denver-co-026",
+    "date_posted": "2026-03-16",
+    "valid_through": "2026-05-16",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Denver",
+        "addressRegion": "CO",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-027",
+    "title": "Operations Manager",
+    "company_name": "EfficientOps LLC",
+    "description": "Oversee daily operations, coordinate teams, and improve operational efficiency across departments.",
+    "apply_url": "https://www.careerbuilder.com/job-details/operations-manager-miami-fl-027",
+    "date_posted": "2026-03-17",
+    "valid_through": "2026-05-17",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Miami",
+        "addressRegion": "FL",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-028",
+    "title": "Business Development Specialist",
+    "company_name": "GrowthWave Partners",
+    "description": "Identify new business opportunities, build client relationships, and drive revenue growth.",
+    "apply_url": "https://www.careerbuilder.com/job-details/business-development-miami-fl-028",
+    "date_posted": "2026-03-18",
+    "valid_through": "2026-05-18",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Miami",
+        "addressRegion": "FL",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-029",
+    "title": "Content Writer",
+    "company_name": "Ink & Ideas Media",
+    "description": "Write engaging content for blogs, websites and marketing campaigns across industries.",
+    "apply_url": "https://www.careerbuilder.com/job-details/content-writer-baltimore-md-029",
+    "date_posted": "2026-03-19",
+    "valid_through": "2026-05-19",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Baltimore",
+        "addressRegion": "MD",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-030",
+    "title": "Customer Service Supervisor",
+    "company_name": "ServiceFirst Corp.",
+    "description": "Lead customer support teams to ensure high satisfaction and resolve escalated issues.",
+    "apply_url": "https://www.careerbuilder.com/job-details/customer-service-supervisor-charlotte-nc-030",
+    "date_posted": "2026-03-20",
+    "valid_through": "2026-05-20",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Charlotte",
+        "addressRegion": "NC",
+        "addressCountry": "US"
+      }
+    }
   }
 ]
