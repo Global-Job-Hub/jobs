@@ -3,38 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copywriter | Huckberry - Job Details</title>
+    <title>Copywriter at Huckberry</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; margin: 0; padding: 0; color: #333; }
-        .ad-row { text-align: center; padding: 10px; background: #fff; border-bottom: 1px solid #eee; }
-        .main-layout { display: flex; justify-content: center; gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .skyscraper { width: 160px; flex-shrink: 0; display: none; }
-        @media (min-width: 1000px) { .skyscraper { display: block; } }
-        .wrapper { flex-grow: 1; max-width: 800px; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e1e4e8; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 18px 25px; text-align: left; border-bottom: 1px solid #f0f0f0; }
-        th { background: #f9f9f9; width: 30%; color: #666; font-size: 12px; text-transform: uppercase; }
-        .apply-btn { background: #28a745; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; }
-        .more-jobs-row { background: #eef6ff; text-align: center; padding: 20px; }
-        .more-jobs-btn { color: #007bff; font-weight: bold; text-decoration: none; border: 2px solid #007bff; padding: 8px 20px; border-radius: 20px; }
-        .sticky-footer { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 1px solid #ddd; text-align: center; padding: 5px 0; z-index: 1000; }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; margin: 0; }
+        .header-ad { background: #fff; padding: 15px; text-align: center; border-bottom: 1px solid #ddd; }
+        .layout { display: flex; max-width: 1250px; margin: 25px auto; gap: 20px; padding: 0 15px; }
+        .skyscraper { width: 160px; flex-shrink: 0; position: sticky; top: 20px; height: 600px; }
+        .main-card { flex-grow: 1; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e1e4e8; overflow: hidden; }
+        .job-hero { padding: 35px; background: #fff; border-bottom: 1px solid #eee; }
+        .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 25px; background: #fafafa; }
+        .description-area { padding: 35px; line-height: 1.7; }
+        .btn-apply { background: #28a745; color: #fff; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; }
+        .footer-ad { position: fixed; bottom: 0; width: 100%; background: #fff; border-top: 1px solid #ddd; text-align: center; padding: 5px 0; }
+        @media (max-width: 1000px) { .skyscraper { display: none; } }
     </style>
 </head>
 <body>
-
-<div class="ad-row"></div>
-
-<div class="main-layout">
-    <aside class="skyscraper"></aside>
-
-    <div class="wrapper">
-        <table>
-            <tr><th>Job Title</th><td><h2 style="margin:0; color:#007bff;">Copywriter</h2></td></tr>
-            <tr><td colspan="2" class="ad-row"></td></tr>
-            <tr><th>Company</th><td>Huckberry</td></tr>
-            <tr><th>Location</th><td>Austin, TX, US</td></tr>
-            <tr><td colspan="2" class="ad-row"></td></tr>
-            <tr><th>Description</th><td>&nbsp;...report to the Senior Copy Manager.
+    <div class="header-ad"></div>
+    <div class="layout">
+        <aside class="skyscraper"></aside>
+        <main class="main-card">
+            <div class="job-hero"><h1>Copywriter</h1><p>Huckberry</p></div>
+            <div class="header-ad"></div>
+            <div class="meta-grid">
+                <div><strong>Location:</strong> Austin, TX</div>
+                <div><strong>Salary:</strong> </div>
+                <div><strong>Posted:</strong> 2026-03-11</div>
+            </div>
+            <div class="description-area">&nbsp;...report to the Senior Copy Manager.
 
 This role is based out of our headquarters in Austin, TX; relocation support will be provided to a <b>remote </b>hire
 
@@ -42,25 +38,12 @@ Responsibilities
 
 Protect brand voice and POV through every marketing channel
 
-Collaborate and concept high‑level marketing...&nbsp;</td></tr>
-            <tr><td colspan="2" class="ad-row"></td></tr>
-            <tr><th>Action</th><td><a href="https://jooble.org/jdp/-461086354974768227" class="apply-btn" target="_blank">Apply Now &raquo;</a></td></tr>
-        </table>
-        
-        <div class="more-jobs-row">
-            <p style="margin-bottom:15px;">Looking for something else?</p>
-            <a href="https://global-job-hub.github.io/jobs/" class="more-jobs-btn">View More Jobs</a>
-        </div>
+Collaborate and concept high‑level marketing...&nbsp;</div>
+            <div class="header-ad"></div>
+            <div style="text-align:center; padding: 40px;"><a href="https://jooble.org/jdp/-461086354974768227" class="btn-apply" target="_blank">Apply Now</a></div>
+        </main>
+        <aside class="skyscraper"></aside>
     </div>
-
-    <aside class="skyscraper"></aside>
-</div>
-
-<div class="sticky-footer"></div>
-
-<footer style="text-align:center; padding:40px; color:#999; font-size:12px; margin-bottom:60px;">
-    © 2026 Global Job Hub
-</footer>
-
+    <div class="footer-ad"></div>
 </body>
 </html>
