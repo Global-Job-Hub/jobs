@@ -123,14 +123,13 @@
         fetch('jobs_index.json')
             .then(res => res.json())
             .then(data => {
-                // Initialize Fuse.js for fuzzy searching
                 fuse = new Fuse(data, { 
-                    keys: ['t', 'c', 'l'], // title, company, location
+                    keys: ['t', 'c', 'l'], 
                     threshold: 0.3,
                     distance: 100
                 });
             })
-            .catch(err => console.error("Search index failed. Ensure jobs_index.json exists."));
+            .catch(err => console.error("Search index failed."));
 
         input.addEventListener('input', () => {
             const val = input.value.trim();
@@ -156,7 +155,6 @@
             }
         });
 
-        // Close results when clicking outside
         input.addEventListener('blur', () => setTimeout(() => results.style.display = 'none', 200));
         
         function quickSearch(t) { 
