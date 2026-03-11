@@ -3,9 +3,12 @@ import sys
 import json
 import re
 import datetime
+import requests  # <-- Missing this import
 
 # --- CONFIG ---
 SITE_URL = os.environ.get("SITE_URL", "https://global-job-hub.github.io/jobs/")
+# Define JOOBLE_KEY here so all functions can see it
+JOOBLE_KEY = os.environ.get("JOOBLE_API_KEY")
 
 # Get Ads from Environment (GitHub Secrets)
 ADS = {
@@ -17,6 +20,7 @@ ADS = {
     "AD_320X50": os.environ.get("AD_320X50", ""),
     "AD_NATIVE": os.environ.get("AD_NATIVE", "")
 }
+
 def fetch_jobs():
     """Fetches jobs from Jooble and prints API health/quota info."""
     if not JOOBLE_KEY:
@@ -24,15 +28,13 @@ def fetch_jobs():
         return []
 
     url = f"https://api.jooble.org/api/{JOOBLE_KEY}"
-    # Broaden keywords to ensure we get results
     payload = {"keywords": "remote software developer", "location": ""}
     
     try:
         print("📡 Connecting to Jooble API...")
         response = requests.post(url, json=payload, timeout=15)
         
-        # Log the quota headers so you can see them in GitHub Actions
-        # Common headers: 'x-ratelimit-remaining' or 'x-quota-remaining'
+        # Log the quota headers
         remaining = response.headers.get('x-ratelimit-remaining', 'Not Found')
         print(f"📊 API Quota Status: {remaining}")
         
@@ -42,42 +44,25 @@ def fetch_jobs():
             print(f"✅ Success: Received {len(jobs)} jobs.")
             return jobs
         elif response.status_code == 429:
-            print("🚨 ERROR 429: Quota Exceeded. Try again tomorrow.")
+            print("🚨 ERROR 429: Quota Exceeded.")
             return []
         else:
-            print(f"⚠️ API returned status {response.status_code}: {response.text}")
+            print(f"⚠️ API Status {response.status_code}")
             return []
     except Exception as e:
         print(f"❌ Connection failed: {e}")
         return []
-def main():
-    # If no arguments are passed, or if --generate is passed
-    mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
-    
-    if mode == "--generate":
-        # 1. Fetch the jobs using our new smart function
-        jobs_list = fetch_jobs()
-        
-        # 2. If we got jobs, generate pages for them
-        if jobs_list:
-            for job in jobs_list[:20]: # Limit to 20 to save space
-                generate_job_page(job)
-        
-        # 3. Always refresh the index (adds legal buttons + search data)
-        generate_index()
-        
-    elif mode == "--index":
-        # Just refresh the index without calling the API
-        generate_index()
 
-if __name__ == "__main__":
-    main()
+def generate_job_page(job):
+    """Skeleton for your job page generation logic."""
+    # Add your specific job page generation code here
+    pass
+
 def generate_index():
-    """Reads all current job files and updates index.html with the latest ads and search data."""
+    """Reads all current job files and updates index.html."""
     print("🏠 Updating Homepage (index.html)...")
     
     jobs_for_search = []
-    # Matches files like: software-engineer-1234567890.html
     job_pattern = re.compile(r".*-(\d{10,})\.html$")
     
     for filename in os.listdir("."):
@@ -85,7 +70,6 @@ def generate_index():
             try:
                 with open(filename, "r", encoding="utf-8") as f:
                     content = f.read()
-                    # Extracts Title and Company
                     title_match = re.search(r"<title>(.*?) \| (.*?) \|", content)
                     if title_match:
                         jobs_for_search.append({
@@ -97,11 +81,10 @@ def generate_index():
             except Exception as e:
                 print(f"⚠️ Error reading {filename}: {e}")
 
-    # Write the JSON search index for Fuse.js
     with open("jobs_index.json", "w", encoding="utf-8") as f:
         json.dump(jobs_for_search, f)
 
-    # The full index.html Template
+    # Use a raw string or double braces for CSS/JS to avoid f-string conflicts
     index_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,23 +96,19 @@ def generate_index():
     <style>
         :root {{ --primary: #007bff; --bg: #f4f7f9; --text: #333; }}
         body {{ font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; text-align: center; background-color: var(--bg); margin: 0; color: var(--text); display: flex; flex-direction: column; align-items: center; }}
-        .ad-center {{ margin: 15px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }}
-        .ad-label {{ display: block; font-size: 10px; color: #bbb; text-transform: uppercase; margin-bottom: 5px; width: 100%; }}
-        .main-layout {{ display: flex; justify-content: center; align-items: flex-start; gap: 20px; width: 100%; max-width: 1300px; margin: 20px auto; padding: 0 15px; box-sizing: border-box; }}
-        .container {{ background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 600px; border: 1px solid #e1e4e8; position: relative; z-index: 2; }}
-        .skyscraper {{ width: 160px; min-height: 600px; background: #fff; border: 1px solid #e1e4e8; border-radius: 8px; display: none; overflow: hidden; position: sticky; top: 10px; }}
+        .ad-center {{ margin: 15px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }}
+        .ad-label {{ display: block; font-size: 10px; color: #bbb; text-transform: uppercase; margin-bottom: 5px; }}
+        .main-layout {{ display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 1300px; margin: 20px auto; }}
+        .container {{ background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 600px; }}
+        .skyscraper {{ width: 160px; min-height: 600px; background: #fff; border: 1px solid #e1e4e8; display: none; position: sticky; top: 10px; }}
         @media (min-width: 1000px) {{ .skyscraper {{ display: block; }} }}
-        h1 {{ color: var(--primary); margin-bottom: 10px; font-size: 2.5rem; letter-spacing: -1px; }}
         .search-container {{ position: relative; width: 100%; margin-top: 25px; }}
-        #jobSearch {{ width: 100%; padding: 18px 25px; border-radius: 12px; border: 2px solid #eee; font-size: 17px; outline: none; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }}
-        #jobSearch:focus {{ border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,123,255,0.1); }}
-        #results {{ position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-radius: 0 0 12px 12px; border: 1px solid #ddd; display: none; z-index: 1000; text-align: left; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }}
-        .result-item {{ padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #f8f8f8; transition: 0.2s; }}
-        .result-item:hover {{ background: #f0f7ff; padding-left: 25px; color: var(--primary); }}
-        .footer-links {{ display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }}
-        .footer-btn {{ font-size: 13px; color: #555; text-decoration: none; padding: 10px 18px; border: 1px solid #e1e4e8; border-radius: 25px; background: #fff; transition: 0.2s; }}
-        .footer-btn:hover {{ border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }}
-        .sticky-footer {{ position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; z-index: 9999; padding: 8px 0; box-shadow: 0 -3px 15px rgba(0,0,0,0.08); }}
+        #jobSearch {{ width: 100%; padding: 18px 25px; border-radius: 12px; border: 2px solid #eee; }}
+        #results {{ position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; display: none; z-index: 1000; text-align: left; }}
+        .result-item {{ padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #f8f8f8; }}
+        .footer-links {{ display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }}
+        .footer-btn {{ font-size: 13px; color: #555; text-decoration: none; padding: 10px 18px; border: 1px solid #e1e4e8; border-radius: 25px; }}
+        .sticky-footer {{ position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; z-index: 9999; padding: 8px 0; }}
     </style>
 </head>
 <body>
@@ -144,10 +123,10 @@ def generate_index():
         </div>
         <div class="container">
             <h1>🌐 Global Job Hub</h1>
-            <p style="color:#666;">Connecting you to millions of opportunities worldwide.</p>
+            <p>Connecting you to millions of opportunities worldwide.</p>
             <div class="ad-center">{ADS['AD_468X60']}</div>
             <div class="search-container">
-                <input type="text" id="jobSearch" placeholder="Search by title, company, or location..." autocomplete="off">
+                <input type="text" id="jobSearch" placeholder="Search..." autocomplete="off">
                 <div id="results"></div>
             </div>
             <div class="ad-center">{ADS['AD_NATIVE']}</div>
@@ -205,9 +184,19 @@ def generate_index():
         f.write(index_template)
     print(f"✅ index.html and jobs_index.json updated.")
 
-if __name__ == "__main__":
-    # This checks if you ran 'python content_manager.py --index'
-    if len(sys.argv) > 1 and sys.argv[1] == "--index":
+def main():
+    mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
+    
+    if mode == "--generate":
+        jobs_list = fetch_jobs()
+        if jobs_list:
+            for job in jobs_list[:20]:
+                generate_job_page(job)
+        generate_index()
+    elif mode == "--index":
         generate_index()
     else:
-        print("Usage: python content_manager.py --index")
+        print("Usage: python content_manager.py [--generate | --index]")
+
+if __name__ == "__main__":
+    main()
