@@ -1,43 +1,31 @@
-name: Job Content Manager
+name: Manual Job Update
 
 on:
-  workflow_dispatch: # run manually
-  schedule:
-    - cron: "0 3 * * *" # daily at 3AM UTC
+  # This allows you to run the script manually from the Actions tab
+  workflow_dispatch: 
+
+  # If you want it to also run every time you push a change to your code
+  push:
+    branches:
+      - main
 
 jobs:
-  manage_jobs:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Checkout repo
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 2️⃣ Setup Python
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
-      # 3️⃣ Install dependencies
       - name: Install dependencies
-        run: pip install google-api-python-client google-auth
+        run: pip install requests google-api-python-client google-auth
 
-      # 4️⃣ Run content manager
-      - name: Generate HTML Pages & Notify Google
+      - name: Run Content Manager
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-          SITE_URL: https://global-job-hub.github.io/jobs/
-          HTML_FOLDER: ./  # change to folder if needed
-          SENT_CACHE_FILE: sent_jobs.json
-        run: python content_manager.py jobs.json
-
-      # 5️⃣ Commit new/updated pages
-      - name: Commit HTML pages
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add *.html sent_jobs.json || echo "No new files"
-          git commit -m "Update job pages" || echo "No changes"
-          git push
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: python content_manager.py
