@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write    # Ensures the action has permission to push files
+      contents: write    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -17,28 +17,26 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12' # Upgraded from 3.10 to stay supported until 2026+
+          python-version: '3.12' 
 
       - name: Install Dependencies
         run: |
-          pip install requests google-api-python-client google-auth
+          pip install requests google-api-python-client google-auth google-auth-httplib2 google-auth-oauthlib
 
-      - name: Generate Job Pages
+      - name: Generate Jobs & Notify Google
         env:
           JOOBLE_API_KEY: ${{ secrets.JOOBLE_API_KEY }}
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
           SITE_URL: "https://global-job-hub.github.io/jobs/"
+        # We run --generate because our updated script handles indexing AND Google notification inside that mode
         run: python content_manager.py --generate
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
+          # Adding a timestamp file or changing a comment ensures there is always a change to push
+          date > last_run.txt
           git add .
-          git commit -m "Automated Job Update $(date)" || echo "No changes to commit"
+          git commit -m "🚀 Automated Job & Index Update $(date)" || echo "No changes to commit"
           git push
-
-      - name: Notify Google Indexing
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-          SITE_URL: "https://global-job-hub.github.io/jobs/"
-        run: python content_manager.py --index
