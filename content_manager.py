@@ -17,6 +17,39 @@ ADS = {
     "AD_320X50": os.environ.get("AD_320X50", ""),
     "AD_NATIVE": os.environ.get("AD_NATIVE", "")
 }
+def fetch_jobs():
+    """Fetches jobs from Jooble and prints API health/quota info."""
+    if not JOOBLE_KEY:
+        print("❌ Error: JOOBLE_API_KEY is not set in environment.")
+        return []
+
+    url = f"https://api.jooble.org/api/{JOOBLE_KEY}"
+    # Broaden keywords to ensure we get results
+    payload = {"keywords": "remote software developer", "location": ""}
+    
+    try:
+        print("📡 Connecting to Jooble API...")
+        response = requests.post(url, json=payload, timeout=15)
+        
+        # Log the quota headers so you can see them in GitHub Actions
+        # Common headers: 'x-ratelimit-remaining' or 'x-quota-remaining'
+        remaining = response.headers.get('x-ratelimit-remaining', 'Not Found')
+        print(f"📊 API Quota Status: {remaining}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            jobs = data.get('jobs', [])
+            print(f"✅ Success: Received {len(jobs)} jobs.")
+            return jobs
+        elif response.status_code == 429:
+            print("🚨 ERROR 429: Quota Exceeded. Try again tomorrow.")
+            return []
+        else:
+            print(f"⚠️ API returned status {response.status_code}: {response.text}")
+            return []
+    except Exception as e:
+        print(f"❌ Connection failed: {e}")
+        return []
 def main():
     # If no arguments are passed, or if --generate is passed
     mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
