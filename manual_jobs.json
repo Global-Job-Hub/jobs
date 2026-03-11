@@ -83,5 +83,175 @@
         "addressCountry": "US"
       }
     }
+  },
+  {
+    "id": "job-011",
+    "title": "Frontend Developer",
+    "company_name": "Web Solutions",
+    "description": "Build responsive web interfaces using React and Vue. Collaborate with designers and backend engineers.",
+    "apply_url": "https://www.careerbuilder.com/job-details/frontend-developer-los-angeles-ca-011",
+    "date_posted": "2026-03-01",
+    "valid_through": "2026-04-01",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Los Angeles",
+        "addressRegion": "CA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-012",
+    "title": "Backend Developer",
+    "company_name": "TechWorks",
+    "description": "Develop and maintain server-side applications with Python and Node.js. Ensure API performance and reliability.",
+    "apply_url": "https://www.careerbuilder.com/job-details/backend-developer-seattle-wa-012",
+    "date_posted": "2026-03-02",
+    "valid_through": "2026-04-02",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Seattle",
+        "addressRegion": "WA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-013",
+    "title": "UI/UX Designer",
+    "company_name": "DesignHub",
+    "description": "Create user-centric designs and prototypes for web and mobile applications. Collaborate with product teams.",
+    "apply_url": "https://www.careerbuilder.com/job-details/ui-ux-designer-austin-tx-013",
+    "date_posted": "2026-03-03",
+    "valid_through": "2026-04-03",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Austin",
+        "addressRegion": "TX",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-014",
+    "title": "Data Scientist",
+    "company_name": "Data Insights",
+    "description": "Analyze large datasets to extract actionable insights and build predictive models. Collaborate with engineering teams.",
+    "apply_url": "https://www.careerbuilder.com/job-details/data-scientist-boston-ma-014",
+    "date_posted": "2026-03-04",
+    "valid_through": "2026-04-04",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Boston",
+        "addressRegion": "MA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-015",
+    "title": "DevOps Engineer",
+    "company_name": "CloudOps",
+    "description": "Manage CI/CD pipelines and cloud infrastructure for scalable applications. Focus on automation and monitoring.",
+    "apply_url": "https://www.careerbuilder.com/job-details/devops-engineer-chicago-il-015",
+    "date_posted": "2026-03-05",
+    "valid_through": "2026-04-05",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Chicago",
+        "addressRegion": "IL",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-016",
+    "title": "QA Engineer",
+    "company_name": "SoftTesters",
+    "description": "Perform automated and manual testing to ensure software quality. Write test cases and report bugs.",
+    "apply_url": "https://www.careerbuilder.com/job-details/qa-engineer-denver-co-016",
+    "date_posted": "2026-03-06",
+    "valid_through": "2026-04-06",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Denver",
+        "addressRegion": "CO",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-017",
+    "title": "Product Manager",
+    "company_name": "InnovateX",
+    "description": "Define product roadmaps and collaborate with engineering and design teams to deliver high-impact products.",
+    "apply_url": "https://www.careerbuilder.com/job-details/product-manager-san-francisco-ca-017",
+    "date_posted": "2026-03-07",
+    "valid_through": "2026-04-07",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "San Francisco",
+        "addressRegion": "CA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-018",
+    "title": "Mobile App Developer",
+    "company_name": "AppForge",
+    "description": "Develop cross-platform mobile applications using Flutter or React Native. Work closely with designers and backend engineers.",
+    "apply_url": "https://www.careerbuilder.com/job-details/mobile-app-developer-miami-fl-018",
+    "date_posted": "2026-03-08",
+    "valid_through": "2026-04-08",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Miami",
+        "addressRegion": "FL",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-019",
+    "title": "Cybersecurity Analyst",
+    "company_name": "SecureNet",
+    "description": "Monitor systems and networks to protect against cyber threats. Implement security protocols and audits.",
+    "apply_url": "https://www.careerbuilder.com/job-details/cybersecurity-analyst-washington-dc-019",
+    "date_posted": "2026-03-09",
+    "valid_through": "2026-04-09",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Washington",
+        "addressRegion": "DC",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-020",
+    "title": "Marketing Specialist",
+    "company_name": "BrandWave",
+    "description": "Plan and execute digital marketing campaigns to grow brand awareness and customer engagement.",
+    "apply_url": "https://www.careerbuilder.com/job-details/marketing-specialist-new-york-ny-020",
+    "date_posted": "2026-03-10",
+    "valid_through": "2026-04-10",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "New York",
+        "addressRegion": "NY",
+        "addressCountry": "US"
+      }
+    }
   }
 ]
