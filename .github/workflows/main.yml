@@ -1,19 +1,19 @@
-name: Manual Job Update
+name: Manual Job Hub Update
 
 on:
-  # This allows you to run the script manually from the Actions tab
-  workflow_dispatch: 
-
-  # If you want it to also run every time you push a change to your code
+  workflow_dispatch: # Adds the "Run workflow" button in the Actions tab
   push:
-    branches:
-      - main
+    paths:
+      - 'manual_jobs.json' # Automatically runs if you edit this file
 
 jobs:
-  build:
+  update-site:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allows the action to push HTML files back to your repo
+
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -21,11 +21,21 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
-        run: pip install requests google-api-python-client google-auth
+      - name: Install Dependencies
+        run: |
+          pip install google-api-python-client google-auth requests
 
       - name: Run Content Manager
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
           SITE_URL: ${{ secrets.SITE_URL }}
-        run: python content_manager.py
+        # Passing 'manual_jobs.json' as the argument to your script
+        run: python content_manager.py manual_jobs.json
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          # Only commit if there are actually new files to avoid errors
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🚀 Update job pages from manual_jobs.json" && git push)
