@@ -7,12 +7,15 @@ from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
+# --- SCRIPT DIRECTORY ---
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # --- CONFIG ---
 SITE_URL = "https://global-job-hub.github.io/jobs/"
-SENT_URLS_FILE = "sent_urls.json"
-INDEX_FILE = "index.json"
-GENERATED_URLS_FILE = "generated_urls.json"
-SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "service_account.json")
+SENT_URLS_FILE = os.path.join(SCRIPT_DIR, "sent_urls.json")
+INDEX_FILE = os.path.join(SCRIPT_DIR, "index.json")
+GENERATED_URLS_FILE = os.path.join(SCRIPT_DIR, "generated_urls.json")
+SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", os.path.join(SCRIPT_DIR, "service_account.json"))
 
 # --- Ads ---
 AD_160X300 = os.getenv('AD_160X300', '<div class="ad-slot-placeholder">Ad 160x300</div>')
@@ -45,6 +48,7 @@ def load_sent_urls():
 def save_sent_urls(urls):
     save_json_file(SENT_URLS_FILE, list(urls))
 
+# --- Generate individual job page ---
 def generate_job_page(job):
     job_id = job.get('id', '0')
     title = job.get('title', 'Job Opening')
@@ -70,6 +74,8 @@ def generate_job_page(job):
 body {{ font-family:sans-serif; background:#f0f2f5; margin:0; padding:20px; }}
 .main-container {{ max-width:900px; margin:0 auto; background:#fff; padding:20px; border-radius:10px; }}
 .ad-section {{ padding:15px; text-align:center; border:1px solid #eee; margin:10px 0; }}
+.apply-btn {{ display:inline-block; padding:15px 30px; background:#28a745; color:#fff; text-decoration:none; border-radius:5px; }}
+.apply-btn:hover {{ background:#218838; }}
 </style>
 </head>
 <body>
@@ -79,13 +85,13 @@ body {{ font-family:sans-serif; background:#f0f2f5; margin:0; padding:20px; }}
 <div class="ad-section">{AD_728X90}</div>
 <p>{description}</p>
 <div class="ad-section">{AD_NATIVE}</div>
-<p><a href="{apply_url}" target="_blank">Apply Now</a></p>
+<p><a href="{apply_url}" target="_blank" class="apply-btn">Apply Now</a></p>
 <div class="ad-section">{AD_300X250}</div>
 </div>
 </body>
 </html>"""
 
-    with open(filename, "w", encoding="utf-8") as f:
+    with open(os.path.join(SCRIPT_DIR, filename), "w", encoding="utf-8") as f:
         f.write(html_template)
 
     return filename, {
@@ -97,6 +103,7 @@ body {{ font-family:sans-serif; background:#f0f2f5; margin:0; padding:20px; }}
         "date_posted": post_date
     }
 
+# --- Send URLs to Google Indexing API ---
 def send_to_google_indexing(urls):
     if not os.path.exists(SERVICE_ACCOUNT_FILE):
         print(f"Google Service Account JSON not found at {SERVICE_ACCOUNT_FILE}. Skipping indexing.")
@@ -115,6 +122,7 @@ def send_to_google_indexing(urls):
             print(f"Failed to send {url}: {e}")
     return sent
 
+# --- MAIN ---
 def main():
     if len(sys.argv) < 2:
         print("Usage: python content_manager.py jobs.json")
@@ -131,7 +139,7 @@ def main():
 
     generated_urls = []
     index_data = load_json_file(INDEX_FILE)
-    sent_urls = load_sent_urls()  # Load existing URLs or empty set
+    sent_urls = load_sent_urls()
 
     for job in jobs_list:
         filename, job_entry = generate_job_page(job)
@@ -146,20 +154,18 @@ def main():
 
     # Determine new URLs to send
     new_urls = [url for url in generated_urls if url not in sent_urls]
-
     if new_urls:
         sent_now = send_to_google_indexing(new_urls)
-        # Always update sent_urls, even if Google API fails/skipped
-        sent_urls.update(new_urls)
+        sent_urls.update(new_urls)  # track all generated URLs
     else:
         print("No new URLs to send. All URLs already tracked.")
 
-    # Save sent_urls.json regardless
+    # Save sent_urls.json in repo folder
     save_sent_urls(sent_urls)
     print(f"{SENT_URLS_FILE} updated with {len(sent_urls)} URLs.")
 
     # Save pending URLs for review
-    with open("pending_urls.txt", "w", encoding="utf-8") as f:
+    with open(os.path.join(SCRIPT_DIR, "pending_urls.txt"), "w", encoding="utf-8") as f:
         for url in generated_urls:
             f.write(url + "\n")
     print("Pending URLs saved to pending_urls.txt")
