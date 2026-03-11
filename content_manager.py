@@ -117,7 +117,7 @@ def send_to_google_indexing(urls):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python content_manager.py manual_jobs.json")
+        print("Usage: python content_manager.py jobs.json")
         sys.exit(1)
 
     input_file = sys.argv[1]
@@ -131,6 +131,7 @@ def main():
 
     generated_urls = []
     index_data = load_json_file(INDEX_FILE)
+    sent_urls = load_sent_urls()  # Load existing URLs or empty set
 
     for job in jobs_list:
         filename, job_entry = generate_job_page(job)
@@ -139,21 +140,29 @@ def main():
         if not any(j["url"] == job_entry["url"] for j in index_data):
             index_data.append(job_entry)
 
+    # Save updated index and generated URLs
     save_json_file(INDEX_FILE, index_data)
     save_json_file(GENERATED_URLS_FILE, generated_urls)
 
-    sent_urls = load_sent_urls()
+    # Determine new URLs to send
     new_urls = [url for url in generated_urls if url not in sent_urls]
 
     if new_urls:
         sent_now = send_to_google_indexing(new_urls)
-        sent_urls.update(sent_now)
-        save_sent_urls(sent_urls)
+        # Always update sent_urls, even if Google API fails/skipped
+        sent_urls.update(new_urls)
+    else:
+        print("No new URLs to send. All URLs already tracked.")
 
+    # Save sent_urls.json regardless
+    save_sent_urls(sent_urls)
+    print(f"{SENT_URLS_FILE} updated with {len(sent_urls)} URLs.")
+
+    # Save pending URLs for review
     with open("pending_urls.txt", "w", encoding="utf-8") as f:
         for url in generated_urls:
             f.write(url + "\n")
-
+    print("Pending URLs saved to pending_urls.txt")
     print(f"Finished. {len(generated_urls)} job pages generated.")
 
 if __name__ == "__main__":
