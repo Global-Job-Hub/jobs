@@ -1,144 +1,147 @@
 import os
 import sys
 import json
+import requests
+import datetime
+import time
 import re
-from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 # --- CONFIG ---
-SITE_URL = os.environ.get("SITE_URL", "https://global-job-hub.github.io/jobs/")
+SITE_URL = "https://global-job-hub.github.io/jobs/"
+JOOBLE_KEY = os.environ.get("JOOBLE_API_KEY")
 GOOGLE_CREDS = os.environ.get("GOOGLE_CREDENTIALS")
-HTML_FOLDER = os.environ.get("HTML_FOLDER", "./")
-SENT_CACHE_FILE = os.environ.get("SENT_CACHE_FILE", "sent_jobs.json")
 
-if not SITE_URL.endswith('/'):
-    SITE_URL += '/'
+# FIXED TYPO: This name must match exactly in the f-string below
+AD_PLACEHOLDER = '<div class="ad-slot-placeholder" style="min-height:100px; background:#f9f9f9; display:flex; align-items:center; justify-content:center; border:1px dashed #ddd; font-size:12px; color:#aaa;">Advertisement</div>'
 
-# --- GOOGLE INDEXING API ---
-def notify_google(url, action="URL_UPDATED"):
-    if not GOOGLE_CREDS:
-        print(f"⚠️ Google Indexing skipped: Credentials not found")
-        return
-    try:
-        info = json.loads(GOOGLE_CREDS)
-        credentials = service_account.Credentials.from_service_account_info(
-            info, scopes=["https://www.googleapis.com/auth/indexing"]
-        )
-        service = build("indexing", "v3", credentials=credentials)
-        body = {"url": url, "type": action}
-        service.urlNotifications().publish(body=body).execute()
-        print(f"🚀 Google Notified: {url} ({action})")
-    except Exception as e:
-        print(f"❌ Google Indexing Error: {e}")
+def slugify(text):
+    text = str(text).lower()
+    text = re.sub(r'[^\w\s-]', '', text)
+    return re.sub(r'[-\s]+', '-', text).strip('-')
 
-# --- HTML GENERATOR ---
 def generate_job_page(job):
     job_id = job.get('id', '0')
     title = job.get('title', 'Job Opening')
-    # Use 'company_name' from your new JSON structure
-    company = job.get('company_name', 'Unknown Company')
-    # Use 'description' from your new JSON structure
-    description = job.get('description', 'No description provided.')
-    # Use 'apply_url' from your new JSON structure
-    apply_url = job.get('apply_url', '#')
+    company = job.get('company', 'Hiring Company')
+    location = job.get('location', 'Remote')
+    snippet = job.get('snippet', '').replace('"', "'")
+    link = job.get('link', '#')
     
-    clean_name = re.sub(r'[^a-z0-9]', '-', title.lower()).strip('-')
-    filename = f"{clean_name}-{job_id}.html"
-    filepath = os.path.join(HTML_FOLDER, filename)
-
-    # Added JSON-LD for Google Jobs SEO
-    schema_json = {
-        "@context": "https://schema.org/",
-        "@type": "JobPosting",
-        "title": title,
-        "description": description,
-        "hiringOrganization": {"@type": "Organization", "name": company},
-        "datePosted": job.get("date_posted", datetime.utcnow().strftime("%Y-%m-%d")),
-        "validThrough": job.get("valid_through"),
-        "employmentType": job.get("employment_type", "FULL_TIME"),
-        "jobLocation": {"@type": "Place", "address": job.get("job_location", {}).get("address")}
-    }
-
-    content = f"""<!DOCTYPE html>
+    post_date = datetime.date.today().isoformat()
+    expiry_date = (datetime.date.today() + datetime.timedelta(days=60)).isoformat()
+    
+    title_slug = slugify(title)
+    filename = f"{title_slug}-{job_id}.html"
+    
+    html_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} | {company}</title>
+    <title>{title} | {company} - Job Details</title>
+    <script src="{SITE_URL}js/ads-config.js" defer></script>
     <script type="application/ld+json">
-    {json.dumps(schema_json)}
+    {{
+      "@context" : "https://schema.org/",
+      "@type" : "JobPosting",
+      "title" : "{title}",
+      "description" : "{snippet}",
+      "identifier": {{ "@type": "PropertyValue", "name": "{company}", "value": "{job_id}" }},
+      "datePosted" : "{post_date}",
+      "validThrough" : "{expiry_date}T00:00",
+      "employmentType" : "FULL_TIME",
+      "hiringOrganization" : {{ "@type" : "Organization", "name" : "{company}" }},
+      "jobLocation": {{ "@type": "Place", "address": {{ "@type": "PostalAddress", "addressLocality": "{location}", "addressCountry": "US" }} }}
+    }}
     </script>
     <style>
-        body{{font-family:sans-serif; padding:40px; line-height:1.6; max-width:800px; margin:auto; color:#333;}}
-        .btn {{background:#007bff; color:#fff; padding:15px 25px; text-decoration:none; border-radius:5px; display:inline-block; font-weight:bold;}}
-        .company-tag {{color:#666; font-size:1.1em; margin-bottom:20px;}}
+        body {{ font-family: 'Segoe UI', Arial, sans-serif; background: #f4f7f9; margin: 0; padding: 10px; color: #333; }}
+        .wrapper {{ max-width: 850px; margin: 20px auto; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e1e4e8; }}
+        table {{ width: 100%; border-collapse: collapse; }}
+        th, td {{ padding: 18px 25px; text-align: left; border-bottom: 1px solid #f0f0f0; vertical-align: top; }}
+        th {{ background: #f9f9f9; width: 35%; color: #666; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }}
+        td {{ line-height: 1.6; font-size: 16px; }}
+        .ad-row-container {{ padding: 10px; text-align: center; border-bottom: 1px solid #f0f0f0; background: #fff; }}
+        .apply-btn {{ background: #28a745; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; transition: 0.3s; }}
     </style>
 </head>
 <body>
-    <h1>{title}</h1>
-    <p class="company-tag"><strong>Company:</strong> {company}</p>
-    <hr>
-    <div class="job-desc">
-        {description}
-    </div>
-    <br><br>
-    <a href="{apply_url}" class="btn">Apply for this Job</a>
+<div class="wrapper">
+    <div class="ad-row-container">{AD_PLACEHOLDER}</div>
+    <table>
+        <tr><th>Job Title</th><td><strong style="color:#007bff; font-size:1.2em;">{title}</strong></td></tr>
+        <tr><th>Company</th><td>{company}</td></tr>
+        <tr><td colspan="2" class="ad-row-container">{AD_PLACEHOLDER}</td></tr>
+        <tr><th>Description</th><td><div style="max-height:400px; overflow-y:auto;">{snippet}</div></td></tr>
+        <tr><th>Location</th><td>{location}, US</td></tr>
+        <tr><td colspan="2" class="ad-row-container">{AD_PLACEHOLDER}</td></tr>
+        <tr><th>Post Date</th><td>{post_date}</td></tr>
+        <tr><th>Valid Until</th><td>{expiry_date}</td></tr>
+        <tr><td colspan="2" class="ad-row-container">{AD_PLACEHOLDER}</td></tr>
+        <tr>
+            <th>Action</th>
+            <td><a href="{link}" class="apply-btn" target="_blank">Apply Now &raquo;</a></td>
+        </tr>
+    </table>
+    <div class="ad-row-container">{AD_PLACEHOLDER}</div>
+    <footer style="text-align:center; padding:25px; font-size:12px; color:#999; background:#fafafa;">
+        <p>© 2026 Global Job Hub</p>
+        <a href="{SITE_URL}privacy-policy.html">Privacy Policy</a> | 
+        <a href="{SITE_URL}terms-of-service.html">Terms of Service</a> |
+        <a href="{SITE_URL}contact.html">Contact Us</a>
+    </footer>
+</div>
 </body>
 </html>"""
 
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write(content)
-    return filename, filepath
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(html_template)
+    return filename
 
-# --- CACHE HELPERS ---
-def load_sent_cache():
-    if os.path.exists(SENT_CACHE_FILE):
-        with open(SENT_CACHE_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
-
-def save_sent_cache(cache):
-    with open(SENT_CACHE_FILE, "w", encoding="utf-8") as f:
-        json.dump(cache, f, indent=2)
-
-def job_hash(job):
-    """Detects changes in the manual data provided"""
-    return f"{job.get('title')}_{job.get('company_name')}_{job.get('apply_url')}"
-
-# --- MAIN ---
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python content_manager.py manual_jobs.json")
-        sys.exit(1)
-
-    json_file = sys.argv[1]
-    with open(json_file, "r", encoding="utf-8") as f:
-        jobs_list = json.load(f)
-
-    sent_cache = load_sent_cache()
-    updated_cache = sent_cache.copy()
-    processed_count = 0
-
-    for job in jobs_list:
-        h = job_hash(job)
-        expiry = job.get('valid_through', 'N/A')
-
-        # Only process if new or changed
-        if h in sent_cache and sent_cache[h] == expiry:
-            print(f"⚡ Skipping unchanged job: {job.get('title')}")
-            continue
-
-        filename, filepath = generate_job_page(job)
-        
-        # Send the generated URL to Google
-        notify_google(f"{SITE_URL}{filename}")
-        
-        updated_cache[h] = expiry
-        processed_count += 1
-
-    save_sent_cache(updated_cache)
-    print(f"✅ Finished! Processed {processed_count} jobs.")
+    mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
+    if mode == "--generate":
+        print("🚀 Fetching jobs...")
+        if not JOOBLE_KEY:
+            print("❌ Error: JOOBLE_API_KEY missing.")
+            return
+        url = f"https://jooble.org/api/{JOOBLE_KEY}"
+        res = requests.post(url, json={"keywords": "remote", "location": ""})
+        jobs = res.json().get('jobs', [])
+        new_urls = []
+        for job in jobs[:20]:
+            fname = generate_job_page(job)
+            new_urls.append(f"{SITE_URL}{fname}")
+        with open("pending_urls.txt", "w") as f:
+            for u in new_urls: f.write(u + "\n")
+        print(f"✅ {len(new_urls)} Pages Generated.")
+    elif mode == "--index":
+        if not GOOGLE_CREDS:
+            print("❌ Error: GOOGLE_CREDENTIALS missing.")
+            return
+        if not os.path.exists("pending_urls.txt"):
+            print("ℹ️ No pending URLs.")
+            return
+        print("🔗 Notifying Google Indexing API...")
+        try:
+            info = json.loads(GOOGLE_CREDS)
+            creds = service_account.Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/indexing"])
+            service = build("indexing", "v3", credentials=creds)
+            with open("pending_urls.txt", "r") as f:
+                for url in f:
+                    target = url.strip()
+                    try:
+                        if requests.get(target).status_code == 200:
+                            service.urlNotifications().publish(body={"url": target, "type": "URL_UPDATED"}).execute()
+                            print(f"🚀 Indexed: {target}")
+                        else:
+                            print(f"⏳ Skipping {target} (Not live yet)")
+                    except Exception as e:
+                        print(f"❌ Error indexing {target}: {e}")
+        except Exception as e:
+            print(f"❌ Critical Auth Error: {e}")
 
 if __name__ == "__main__":
     main()
