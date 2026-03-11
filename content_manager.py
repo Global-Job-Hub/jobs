@@ -35,45 +35,46 @@ def notify_google(url):
         print(f"❌ Google Indexing Error: {e}")
 
 def fetch_jobs():
-    """Fetches jobs from We Work Remotely (WWR) and maps them to the internal format."""
+    """Fetches jobs from WWR with enhanced headers to bypass 401/403 errors."""
     api_url = "https://weworkremotely.com/api/v1/remote-jobs"
     
     session = requests.Session()
+    # Add a more robust retry for 401/403 (sometimes transient)
     retry_strategy = Retry(
-        total=3,
-        backoff_factor=2,
-        status_forcelist=[429, 500, 502, 503, 504],
+        total=5,
+        backoff_factor=3,
+        status_forcelist=[401, 403, 429, 500, 502, 503, 504],
     )
     session.mount("https://", HTTPAdapter(max_retries=retry_strategy))
 
+    # WWR frequently checks for these specific headers
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://weworkremotely.com/",
+        "Origin": "https://weworkremotely.com"
     }
 
     try:
-        print(f"📡 Connecting to We Work Remotely API...")
-        response = session.get(api_url, headers=headers, timeout=20)
+        print(f"📡 Attempting stealth connection to WWR...")
+        response = session.get(api_url, headers=headers, timeout=25)
 
         if response.status_code == 200:
-            raw_data = response.json()
-            raw_jobs = raw_data.get('jobs', [])
-            
-            # --- DATA MAPPING ---
-            # Transform WWR fields to match your existing 'generate_job_page' logic
+            raw_jobs = response.json().get('jobs', [])
             formatted_jobs = []
             for job in raw_jobs:
                 formatted_jobs.append({
                     'id': job.get('id'),
                     'title': job.get('title'),
                     'company': job.get('company'),
-                    'snippet': job.get('description'), # WWR uses 'description' instead of 'snippet'
-                    'link': job.get('url')              # WWR uses 'url' instead of 'link'
+                    'snippet': job.get('description'),
+                    'link': job.get('url')
                 })
-            
-            print(f"✅ Success! Fetched {len(formatted_jobs)} jobs from WWR.")
+            print(f"✅ Success! Fetched {len(formatted_jobs)} jobs.")
             return formatted_jobs
         else:
-            print(f"❌ WWR Error {response.status_code}: {response.text[:100]}")
+            print(f"❌ WWR Error {response.status_code}: Access Denied. GitHub IP might be blacklisted.")
             
     except Exception as e:
         print(f"❌ Fatal Fetch Error: {e}")
