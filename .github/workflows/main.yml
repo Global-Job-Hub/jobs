@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0   # Needed to push changes
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -37,25 +39,23 @@ jobs:
 
       - name: Generate Job Pages & Send to Google
         run: |
-          echo "Generating job pages..."
           python content_manager.py jobs.json
-          echo "Job pages generation complete."
+        working-directory: ./   # Ensure we are in repo root
 
-      - name: Commit Generated Files
+      - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.json generated_urls.json sent_urls.json pending_urls.txt
-          git commit -m "Update generated job pages and URL records" || echo "No changes to commit"
+          # Add all generated files safely
+          git add index.json generated_urls.json sent_urls.json pending_urls.txt *.html
+          git commit -m "Update generated job pages and index" || echo "No changes to commit"
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./   # Assumes HTML pages are in repo root
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          branch: main  # Change if you use a different branch
+          force: true
 
       - name: Wait for GitHub Pages propagation
         run: |
@@ -64,6 +64,4 @@ jobs:
 
       - name: Confirm new URLs sent
         run: |
-          echo "✔ Check sent_urls.json for URLs sent to Google Indexing API"
-          echo "✔ Pending URLs saved in pending_urls.txt"
-          echo "✔ Generated URLs saved in generated_urls.json"
+          echo "Check sent_urls.json for URLs sent to Google Indexing API"
