@@ -8,11 +8,10 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 # --- CONFIG ---
-SITE_URL = "https://global-job-hub.github.io/jobs/"
+SITE_URL = os.getenv("SITE_URL", "https://global-job-hub.github.io/jobs/")
 SENT_URLS_FILE = "sent_urls.json"
 INDEX_FILE = "index.json"
 GENERATED_URLS_FILE = "generated_urls.json"
-PENDING_FILE = "pending_urls.txt"
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "service_account.json")
 
 # --- Ads ---
@@ -46,7 +45,7 @@ def load_sent_urls():
 def save_sent_urls(urls):
     save_json_file(SENT_URLS_FILE, list(urls))
 
-# --- Job Page Generation ---
+# --- Generate HTML page ---
 def generate_job_page(job):
     job_id = job.get('id', '0')
     title = job.get('title', 'Job Opening')
@@ -143,30 +142,25 @@ def main():
         print(f"Created: {filename}")
         if not any(j["url"] == job_entry["url"] for j in index_data):
             index_data.append(job_entry)
-        # Save generated URLs immediately
-        save_json_file(GENERATED_URLS_FILE, generated_urls)
 
-    # Save index and update sent URLs
+    # Save all JSON files (always)
     save_json_file(INDEX_FILE, index_data)
-    new_urls = [url for url in generated_urls if url not in sent_urls]
+    save_json_file(GENERATED_URLS_FILE, generated_urls)
+    save_sent_urls(sent_urls)  # ensures sent_urls.json exists
 
+    # Determine new URLs to send
+    new_urls = [url for url in generated_urls if url not in sent_urls]
     if new_urls:
         sent_now = send_to_google_indexing(new_urls)
-        sent_urls.update(new_urls)
+        sent_urls.update(sent_now)
+        save_sent_urls(sent_urls)
 
-    save_sent_urls(sent_urls)
-
-    # Save pending URLs
-    with open(PENDING_FILE, "w", encoding="utf-8") as f:
+    # Pending URLs
+    with open("pending_urls.txt", "w", encoding="utf-8") as f:
         for url in generated_urls:
             f.write(url + "\n")
 
     print(f"Finished. {len(generated_urls)} job pages generated.")
-    print(f"Files saved in: {os.getcwd()}")
-    print(f"- {GENERATED_URLS_FILE}")
-    print(f"- {SENT_URLS_FILE}")
-    print(f"- {INDEX_FILE}")
-    print(f"- {PENDING_FILE}")
 
 if __name__ == "__main__":
     main()
