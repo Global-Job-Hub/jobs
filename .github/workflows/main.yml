@@ -1,33 +1,43 @@
-name: Global Job Hub Jobber
+name: Job Content Manager
 
 on:
+  workflow_dispatch: # run manually
   schedule:
-    - cron: "0 */6 * * *"   # every 6 hours
-  workflow_dispatch:
+    - cron: "0 3 * * *" # daily at 3AM UTC
 
 jobs:
-  scrape:
+  manage_jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      # 1️⃣ Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install google-api-python-client google-auth
 
-      - name: Run scraper
-        run: python scraper.py
+      # 4️⃣ Run content manager
+      - name: Generate HTML Pages & Notify Google
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          SITE_URL: https://global-job-hub.github.io/jobs/
+          HTML_FOLDER: ./  # change to folder if needed
+          SENT_CACHE_FILE: sent_jobs.json
+        run: python content_manager.py jobs.json
 
-      - name: Commit results
+      # 5️⃣ Commit new/updated pages
+      - name: Commit HTML pages
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add jobs.json
-          git commit -m "Update jobs data" || echo "No changes"
+          git add *.html sent_jobs.json || echo "No new files"
+          git commit -m "Update job pages" || echo "No changes"
           git push
