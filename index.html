@@ -4,34 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Job Hub | Find Your Next Career</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ID" crossorigin="anonymous"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 80px 20px; background-color: #f4f7f9; margin: 0; color: #333; }
-        .container { background: white; padding: 50px 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: inline-block; width: 100%; max-width: 550px; border: 1px solid #e1e4e8; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 40px 20px; background-color: #f4f7f9; margin: 0; color: #333; }
+        
+        /* Professional Ad Containers */
+        .top-ad-banner { max-width: 728px; margin: 0 auto 30px auto; min-height: 90px; background: #fff; border: 1px solid #e1e4e8; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 12px; }
+        
+        .container { background: white; padding: 50px 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: inline-block; width: 100%; max-width: 550px; border: 1px solid #e1e4e8; position: relative; }
+        
         h1 { color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 2.2rem; }
         p { color: #7f8c8d; font-size: 1.1rem; margin-bottom: 30px; }
         
-        /* Search Container */
+        /* Search Styling */
         .search-container { position: relative; width: 100%; margin-top: 20px; }
-        #jobSearch { width: 100%; padding: 15px 20px; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; outline: none; box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s; }
-        #jobSearch:focus { border-color: #007bff; box-shadow: 0 0 8px rgba(0,123,255,0.15); }
+        #jobSearch { width: 100%; padding: 15px 20px; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; outline: none; box-sizing: border-box; transition: border-color 0.3s; }
+        #jobSearch:focus { border-color: #007bff; box-shadow: 0 0 8px rgba(0,123,255,0.1); }
 
-        /* Suggestions Dropdown */
         #results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-radius: 0 0 10px 10px; border: 1px solid #ddd; border-top: none; display: none; z-index: 1000; box-shadow: 0 10px 20px rgba(0,0,0,0.1); max-height: 350px; overflow-y: auto; text-align: left; }
-        .result-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #f8f8f8; transition: background 0.2s; }
+        .result-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #f8f8f8; }
         .result-item:hover { background: #f0f7ff; }
         .result-title { font-weight: 600; color: #007bff; font-size: 15px; }
-        .result-meta { font-size: 12px; color: #666; margin-top: 2px; }
+        .result-meta { font-size: 12px; color: #666; }
 
-        /* Trending section */
-        .trending { margin-top: 20px; font-size: 13px; color: #999; }
+        .trending { margin: 20px 0; font-size: 13px; color: #999; }
         .trending span { color: #007bff; cursor: pointer; margin: 0 5px; text-decoration: underline; }
 
+        /* Inline Ad Styling */
+        .native-ad-slot { margin-top: 30px; padding: 20px; background: #fafafa; border-radius: 12px; border: 1px solid #f0f0f0; }
+        .ad-label { display: block; font-size: 10px; color: #bbb; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+
+        footer { margin-top: 40px; font-size: 12px; color: #bbb; }
         a { color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+
+    <div class="top-ad-banner">
+        <span class="ad-label">Advertisement</span>
+        </div>
 
     <div class="container">
         <h1>🌐 Global Job Hub</h1>
@@ -48,7 +61,16 @@
             <span onclick="quickSearch('Manager')">Manager</span>
         </div>
 
-        <p style="margin-top:40px;"><small>© 2026 Global Job Hub | <a href="privacy.html">Privacy Policy</a> | Powered by Jooble API</small></p>
+        <div class="native-ad-slot">
+            <span class="ad-label">Sponsored</span>
+            <div style="height: 120px; display: flex; align-items: center; justify-content: center; color: #ddd;">
+                [Native Ad Display Area]
+            </div>
+        </div>
+
+        <footer>
+            © 2026 Global Job Hub | <a href="privacy.html">Privacy Policy</a> | Powered by Jooble API
+        </footer>
     </div>
 
     <script>
@@ -56,57 +78,37 @@
         const results = document.getElementById('results');
         let fuse;
 
-        // 1. Fetch the index generated by your Python script
         fetch('jobs_index.json')
             .then(res => res.json())
             .then(data => {
-                const options = {
-                    keys: ['t', 'c', 'l'], // Search in Title, Company, and Location
-                    threshold: 0.4,        // Lower = stricter. 0.4 is perfect for typos.
-                    distance: 100
-                };
+                const options = { keys: ['t', 'c', 'l'], threshold: 0.4, distance: 100 };
                 fuse = new Fuse(data, options);
             })
-            .catch(err => console.error("Could not load jobs index:", err));
+            .catch(err => console.error("Index load failed. Ensure python script generated jobs_index.json", err));
 
-        // 2. Handle User Input
         input.addEventListener('input', () => {
             const val = input.value.trim();
             results.innerHTML = '';
-            
-            if (!fuse || val.length < 2) {
-                results.style.display = 'none';
-                return;
-            }
-
-            const searchResult = fuse.search(val).slice(0, 10);
-
+            if (!fuse || val.length < 2) { results.style.display = 'none'; return; }
+            const searchResult = fuse.search(val).slice(0, 8);
             if (searchResult.length > 0) {
                 results.style.display = 'block';
                 searchResult.forEach(match => {
                     const job = match.item;
                     const div = document.createElement('div');
                     div.className = 'result-item';
-                    div.innerHTML = `
-                        <div class="result-title">${job.t}</div>
-                        <div class="result-meta">${job.c} • ${job.l}</div>
-                    `;
-                    // mousedown used to trigger before the blur event
+                    div.innerHTML = `<div class="result-title">${job.t}</div><div class="result-meta">${job.c} • ${job.l}</div>`;
                     div.onmousedown = () => window.location.href = job.u;
                     results.appendChild(div);
                 });
             } else {
-                results.innerHTML = '<div style="padding:20px; color:#999; font-size:14px;">No jobs found. Try a different keyword!</div>';
+                results.innerHTML = '<div style="padding:20px; color:#999; font-size:14px;">No jobs found.</div>';
                 results.style.display = 'block';
             }
         });
 
-        // 3. Hide results when clicking outside
-        input.addEventListener('blur', () => {
-            setTimeout(() => results.style.display = 'none', 200);
-        });
+        input.addEventListener('blur', () => setTimeout(() => results.style.display = 'none', 200));
 
-        // Quick search for trending tags
         function quickSearch(term) {
             input.value = term;
             input.dispatchEvent(new Event('input'));
