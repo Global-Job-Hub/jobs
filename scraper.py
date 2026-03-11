@@ -13,7 +13,7 @@ HEADERS = {
 }
 
 TARGET_LOCATIONS = [
-    "united states", "usa", "united kingdom", "uk", 
+    "united states", "usa", "united kingdom", "uk",
     "australia", "canada", "remote", "worldwide"
 ]
 
@@ -21,7 +21,7 @@ jobs = []
 
 def calculate_expiry(posted_date):
     dt = datetime.strptime(posted_date, "%Y-%m-%d")
-    expiry = dt + timedelta(days=30)
+    expiry = dt + timedelta(days=30)  # 30-day expiry
     return expiry.strftime("%Y-%m-%d")
 
 def scrape_page(page):
@@ -30,22 +30,16 @@ def scrape_page(page):
     r = requests.get(url, headers=HEADERS, timeout=30)
     soup = BeautifulSoup(r.text, "html.parser")
 
-    # Each section.jobs contains <li> elements
-    listings = soup.select("section.jobs ul li")
+    listings = soup.select("section.jobs article")  # updated selector
 
-    for li in listings:
-        # Skip dividers / empty li
-        if 'class' in li.attrs and 'view-all' in li.attrs['class']:
-            continue
-
-        link_tag = li.find("a", href=True)
+    for article in listings:
+        link_tag = article.find("a", href=True)
         if not link_tag:
             continue
-
         job_url = urljoin(BASE_URL, link_tag["href"])
-        company_tag = li.select_one(".company")
-        title_tag = li.select_one(".title")
-        region_tag = li.select_one(".region")
+        company_tag = article.select_one(".company")
+        title_tag = article.select_one(".title")
+        region_tag = article.select_one(".region")
 
         if not title_tag:
             continue
