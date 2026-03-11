@@ -2,12 +2,17 @@ import os
 import sys
 import json
 import re
+import time
 from datetime import datetime, timedelta
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 
 # --- CONFIG ---
 SITE_URL = "https://global-job-hub.github.io/jobs/"
+SENT_URLS_FILE = "sent_urls.json"  # store URLs already sent to Google
+SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "service_account.json")
 
-# --- Load ad units from GitHub Secrets (or fallback placeholders for local dev) ---
+# --- Load ad units from GitHub Secrets (or fallback placeholders) ---
 AD_160X300 = os.getenv('AD_160X300', '<div class="ad-slot-placeholder">Ad 160x300</div>')
 AD_160X600 = os.getenv('AD_160X600', '<div class="ad-slot-placeholder">Ad 160x600</div>')
 AD_300X250 = os.getenv('AD_300X250', '<div class="ad-slot-placeholder">Ad 300x250</div>')
@@ -16,14 +21,23 @@ AD_468X60  = os.getenv('AD_468X60',  '<div class="ad-slot-placeholder">Ad 468x60
 AD_728X90  = os.getenv('AD_728X90',  '<div class="ad-slot-placeholder">Ad 728x90</div>')
 AD_NATIVE  = os.getenv('AD_NATIVE',  '<div class="ad-slot-placeholder">Native Ad</div>')
 
+# --- Helper functions ---
 def slugify(text):
-    """Converts job titles into URL-friendly filenames."""
     text = str(text).lower()
     text = re.sub(r'[^\w\s-]', '', text)
     return re.sub(r'[-\s]+', '-', text).strip('-')
 
+def load_sent_urls():
+    if os.path.exists(SENT_URLS_FILE):
+        with open(SENT_URLS_FILE, 'r', encoding='utf-8') as f:
+            return set(json.load(f))
+    return set()
+
+def save_sent_urls(urls):
+    with open(SENT_URLS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(list(urls), f, indent=2)
+
 def generate_job_page(job):
-    """Generates HTML file with job posting schema and ad units."""
     job_id = job.get('id', '0')
     title = job.get('title', 'Job Opening')
     company = job.get('company_name', 'Hiring Company')
@@ -42,7 +56,6 @@ def generate_job_page(job):
     title_slug = slugify(title)
     filename = f"{title_slug}-{job_id}.html"
     
-    # Map ad units to sections
     ad_top = AD_728X90
     ad_middle = AD_300X250
     ad_sidebar = AD_160X600
@@ -163,13 +176,34 @@ footer a {{ color: #fff; text-decoration: none; margin: 0 10px; }}
     
     return filename
 
+def send_to_google_indexing(urls):
+    if not os.path.exists(SERVICE_ACCOUNT_FILE):
+        print(f"Google Service Account JSON not found at {SERVICE_ACCOUNT_FILE}. Skipping indexing.")
+        return set()
+    
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/indexing'])
+    service = build('indexing', 'v3', credentials=credentials)
+    
+    sent = set()
+    for url in urls:
+        try:
+            service.urlNotifications().publish(
+                body={"url": url, "type": "URL_UPDATED"}
+            ).execute()
+            print(f"Sent URL to Google Indexing API: {url}")
+            sent.add(url)
+            time.sleep(1)  # avoid spamming API too quickly
+        except Exception as e:
+            print(f"Failed to send {url}: {e}")
+    return sent
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python content_manager.py jobs.json")
         sys.exit(1)
 
     input_file = sys.argv[1]
-    
     if not os.path.exists(input_file):
         print(f"Error: File '{input_file}' not found.")
         sys.exit(1)
@@ -179,7 +213,6 @@ def main():
         jobs_list = json.load(f)
 
     generated_urls = []
-
     for job in jobs_list:
         try:
             filename = generate_job_page(job)
@@ -189,11 +222,24 @@ def main():
         except Exception as e:
             print(f"Failed to process job {job.get('id')}: {e}")
 
+    # Load already sent URLs
+    sent_urls = load_sent_urls()
+    new_urls = [url for url in generated_urls if url not in sent_urls]
+
+    if new_urls:
+        print(f"Sending {len(new_urls)} new URLs to Google Indexing API...")
+        sent_now = send_to_google_indexing(new_urls)
+        sent_urls.update(sent_now)
+        save_sent_urls(sent_urls)
+    else:
+        print("No new URLs to send. All URLs already sent previously.")
+
+    # Save pending URLs (optional)
     with open("pending_urls.txt", "w", encoding="utf-8") as f:
         for url in generated_urls:
             f.write(url + "\n")
 
-    print(f"Finished. {len(generated_urls)} job pages ready for indexing.")
+    print(f"Finished. {len(generated_urls)} job pages generated. {len(new_urls)} new URLs sent to Google.")
 
 if __name__ == "__main__":
     main()
