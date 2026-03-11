@@ -1,38 +1,30 @@
 /**
  * Global Job Hub - Centralized Ad Loader
- * This script finds all '.ad-slot-placeholder' divs and 
- * injects your Adsterra units into them automatically.
  */
 document.addEventListener("DOMContentLoaded", function() {
     const placeholders = document.querySelectorAll('.ad-slot-placeholder');
     
     placeholders.forEach((slot, index) => {
-        // 1. Clear the "Loading..." text
+        // Clear previous content
         slot.innerHTML = '';
-        slot.style.border = 'none'; // Remove the dashed border once loaded
-
-        /**
-         * --- HOW TO ADD YOUR ADSTERRA CODE ---
-         * Adsterra usually gives you two parts:
-         * 1. A Script Source URL (e.g., //www.topcreativeformat.com/xyz/invoke.js)
-         * 2. A Configuration Variable (atob(...) logic)
-         */
+        slot.style.border = 'none';
+        slot.style.background = 'transparent';
 
         try {
-            // EXAMPLE: If your Adsterra code looks like a standard banner script:
+            // Check if this slot needs specific Adsterra options (e.g. 300x250)
+            // You can customize this logic based on data-attributes if needed
             let adScript = document.createElement('script');
             adScript.type = 'text/javascript';
             
-            // REPLACE THE URL BELOW with your real Adsterra 'invoke.js' URL
-            adScript.src = '//www.topcreativeformat.com/YOUR_AD_ID_HERE/invoke.js'; 
+            /* If you want to use ONE script for all slots in the Job Details,
+               paste your primary Adsterra 'invoke.js' URL here.
+            */
+            adScript.src = 'https://www.highperformanceformat.com/67ea727e78dcc41b8d65c7c29c63ea48/invoke.js'; 
             
-            // Append the script to the slot
             slot.appendChild(adScript);
-            
-            console.log(`Ad Slot ${index + 1} initialized.`);
+            console.log(`Ad Slot ${index + 1} injected.`);
         } catch (err) {
             console.error("Ad Loader Error:", err);
-            slot.innerHTML = '<p style="font-size:10px; color:#ccc;">Notice: Ad disabled</p>';
         }
     });
 });
