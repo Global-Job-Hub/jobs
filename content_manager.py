@@ -10,6 +10,7 @@ from googleapiclient.discovery import build
 # --- CONFIG ---
 SITE_URL = "https://global-job-hub.github.io/jobs/"
 SENT_URLS_FILE = "sent_urls.json"  # store URLs already sent to Google
+INDEX_FILE = "index.json"          # central index for index.html
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "service_account.json")
 
 # --- Load ad units from GitHub Secrets (or fallback placeholders) ---
@@ -36,6 +37,16 @@ def load_sent_urls():
 def save_sent_urls(urls):
     with open(SENT_URLS_FILE, 'w', encoding='utf-8') as f:
         json.dump(list(urls), f, indent=2)
+
+def load_index():
+    if os.path.exists(INDEX_FILE):
+        with open(INDEX_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return []
+
+def save_index(data):
+    with open(INDEX_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
 
 def generate_job_page(job):
     job_id = job.get('id', '0')
@@ -174,7 +185,14 @@ footer a {{ color: #fff; text-decoration: none; margin: 0 10px; }}
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html_template)
     
-    return filename
+    return filename, {
+        "id": job_id,
+        "title": title,
+        "company": company,
+        "location": location_str,
+        "url": f"{SITE_URL}{filename}",
+        "date_posted": post_date
+    }
 
 def send_to_google_indexing(urls):
     if not os.path.exists(SERVICE_ACCOUNT_FILE):
@@ -193,7 +211,7 @@ def send_to_google_indexing(urls):
             ).execute()
             print(f"Sent URL to Google Indexing API: {url}")
             sent.add(url)
-            time.sleep(1)  # avoid spamming API too quickly
+            time.sleep(1)
         except Exception as e:
             print(f"Failed to send {url}: {e}")
     return sent
@@ -213,14 +231,21 @@ def main():
         jobs_list = json.load(f)
 
     generated_urls = []
+    index_data = load_index()
     for job in jobs_list:
         try:
-            filename = generate_job_page(job)
-            full_url = f"{SITE_URL}{filename}"
-            generated_urls.append(full_url)
+            filename, job_entry = generate_job_page(job)
+            generated_urls.append(job_entry["url"])
             print(f"Created: {filename}")
+            
+            # Add to index if not already present
+            if not any(j["url"] == job_entry["url"] for j in index_data):
+                index_data.append(job_entry)
         except Exception as e:
             print(f"Failed to process job {job.get('id')}: {e}")
+
+    # Save updated index.json
+    save_index(index_data)
 
     # Load already sent URLs
     sent_urls = load_sent_urls()
@@ -234,7 +259,7 @@ def main():
     else:
         print("No new URLs to send. All URLs already sent previously.")
 
-    # Save pending URLs (optional)
+    # Save pending URLs
     with open("pending_urls.txt", "w", encoding="utf-8") as f:
         for url in generated_urls:
             f.write(url + "\n")
