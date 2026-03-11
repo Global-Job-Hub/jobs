@@ -71,7 +71,7 @@ def fetch_jobs():
             json=payload, 
             headers=headers,
             timeout=20, 
-            verify=False 
+            verify=True
         )
         
         # Log the status for debugging
