@@ -1,41 +1,58 @@
-name: Manual Job Hub Update
+name: Build and Index Job Pages
 
 on:
-  workflow_dispatch:
   push:
     paths:
-      - 'manual_jobs.json'
+      - 'jobs.json'   # Trigger only when jobs.json is updated
+  workflow_dispatch:   # Allows manual trigger
 
 jobs:
-  build-and-index:
+  build_and_index:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # CRITICAL: Allows the bot to save the cache file
+
+    env:
+      SITE_URL: https://global-job-hub.github.io/jobs/
+      AD_160X300: ${{ secrets.AD_160X300 }}
+      AD_160X600: ${{ secrets.AD_160X600 }}
+      AD_300X250: ${{ secrets.AD_300X250 }}
+      AD_320X50:  ${{ secrets.AD_320X50 }}
+      AD_468X60:  ${{ secrets.AD_468X60 }}
+      AD_728X90:  ${{ secrets.AD_728X90 }}
+      AD_NATIVE:  ${{ secrets.AD_NATIVE }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
-      - name: Install Dependencies
-        run: pip install google-api-python-client google-auth requests
-
-      - name: Generate HTML Pages
-        run: python content_manager.py manual_jobs.json
-
-      - name: Send New Jobs to Google
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-        run: python indexer.py
-
-      - name: Save Changes and Cache
+      - name: Install dependencies
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          # This saves the new HTML files AND the updated indexed_jobs.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🚀 Update jobs and indexing cache" && git push)
+          python -m pip install --upgrade pip
+          pip install google-api-python-client google-auth
+
+      - name: Generate Job Pages & Send to Google
+        run: |
+          python content_manager.py jobs.json
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Wait for GitHub Pages propagation
+        run: |
+          echo "Waiting 60 seconds for pages to go live..."
+          sleep 60
+
+      - name: Confirm new URLs sent
+        run: |
+          echo "Check sent_urls.json for URLs sent to Google Indexing API"
