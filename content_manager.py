@@ -218,7 +218,7 @@ def send_to_google_indexing(urls):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python content_manager.py jobs.json")
+        print("Usage: python content_manager.py manual_jobs.json")
         sys.exit(1)
 
     input_file = sys.argv[1]
