@@ -37,14 +37,23 @@ jobs:
 
       - name: Generate Job Pages & Send to Google
         run: |
+          echo "Generating job pages..."
           python content_manager.py jobs.json
+          echo "Job pages generation complete."
+
+      - name: Commit Generated Files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.json generated_urls.json sent_urls.json pending_urls.txt
+          git commit -m "Update generated job pages and URL records" || echo "No changes to commit"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: ./
+          publish_dir: ./   # Assumes HTML pages are in repo root
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
 
@@ -55,4 +64,6 @@ jobs:
 
       - name: Confirm new URLs sent
         run: |
-          echo "Check sent_urls.json for URLs sent to Google Indexing API"
+          echo "✔ Check sent_urls.json for URLs sent to Google Indexing API"
+          echo "✔ Pending URLs saved in pending_urls.txt"
+          echo "✔ Generated URLs saved in generated_urls.json"
