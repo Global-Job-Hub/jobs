@@ -17,7 +17,28 @@ ADS = {
     "AD_320X50": os.environ.get("AD_320X50", ""),
     "AD_NATIVE": os.environ.get("AD_NATIVE", "")
 }
+def main():
+    # If no arguments are passed, or if --generate is passed
+    mode = sys.argv[1] if len(sys.argv) > 1 else "--generate"
+    
+    if mode == "--generate":
+        # 1. Fetch the jobs using our new smart function
+        jobs_list = fetch_jobs()
+        
+        # 2. If we got jobs, generate pages for them
+        if jobs_list:
+            for job in jobs_list[:20]: # Limit to 20 to save space
+                generate_job_page(job)
+        
+        # 3. Always refresh the index (adds legal buttons + search data)
+        generate_index()
+        
+    elif mode == "--index":
+        # Just refresh the index without calling the API
+        generate_index()
 
+if __name__ == "__main__":
+    main()
 def generate_index():
     """Reads all current job files and updates index.html with the latest ads and search data."""
     print("🏠 Updating Homepage (index.html)...")
