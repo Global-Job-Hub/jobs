@@ -9,9 +9,8 @@ from googleapiclient.discovery import build
 # --- CONFIG ---
 SITE_URL = os.environ.get("SITE_URL", "https://global-job-hub.github.io/jobs/")
 GOOGLE_CREDS = os.environ.get("GOOGLE_CREDENTIALS")
-EXPIRE_DAYS = 30
 HTML_FOLDER = os.environ.get("HTML_FOLDER", "./")
-SENT_CACHE_FILE = os.environ.get("SENT_CACHE_FILE", "sent_jobs.json")  # track jobs sent to Google
+SENT_CACHE_FILE = os.environ.get("SENT_CACHE_FILE", "sent_jobs.json")
 
 if not SITE_URL.endswith('/'):
     SITE_URL += '/'
@@ -36,29 +35,55 @@ def notify_google(url, action="URL_UPDATED"):
 # --- HTML GENERATOR ---
 def generate_job_page(job):
     job_id = job.get('id', '0')
-    title = job.get('title', 'Job')
+    title = job.get('title', 'Job Opening')
+    # Use 'company_name' from your new JSON structure
+    company = job.get('company_name', 'Unknown Company')
+    # Use 'description' from your new JSON structure
+    description = job.get('description', 'No description provided.')
+    # Use 'apply_url' from your new JSON structure
+    apply_url = job.get('apply_url', '#')
+    
     clean_name = re.sub(r'[^a-z0-9]', '-', title.lower()).strip('-')
     filename = f"{clean_name}-{job_id}.html"
     filepath = os.path.join(HTML_FOLDER, filename)
+
+    # Added JSON-LD for Google Jobs SEO
+    schema_json = {
+        "@context": "https://schema.org/",
+        "@type": "JobPosting",
+        "title": title,
+        "description": description,
+        "hiringOrganization": {"@type": "Organization", "name": company},
+        "datePosted": job.get("date_posted", datetime.utcnow().strftime("%Y-%m-%d")),
+        "validThrough": job.get("valid_through"),
+        "employmentType": job.get("employment_type", "FULL_TIME"),
+        "jobLocation": {"@type": "Place", "address": job.get("job_location", {}).get("address")}
+    }
 
     content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} | {job.get('company')}</title>
+    <title>{title} | {company}</title>
+    <script type="application/ld+json">
+    {json.dumps(schema_json)}
+    </script>
     <style>
-        body{{font-family:sans-serif; padding:40px; line-height:1.6; max-width:800px; margin:auto;}}
-        .btn {{background:#007bff; color:#fff; padding:12px 20px; text-decoration:none; border-radius:5px; display:inline-block;}}
+        body{{font-family:sans-serif; padding:40px; line-height:1.6; max-width:800px; margin:auto; color:#333;}}
+        .btn {{background:#007bff; color:#fff; padding:15px 25px; text-decoration:none; border-radius:5px; display:inline-block; font-weight:bold;}}
+        .company-tag {{color:#666; font-size:1.1em; margin-bottom:20px;}}
     </style>
 </head>
 <body>
     <h1>{title}</h1>
-    <p><strong>Company:</strong> {job.get('company')}</p>
+    <p class="company-tag"><strong>Company:</strong> {company}</p>
     <hr>
-    <div>{job.get('snippet')}</div>
+    <div class="job-desc">
+        {description}
+    </div>
     <br><br>
-    <a href="{job.get('link')}" class="btn">View Full Job Posting</a>
+    <a href="{apply_url}" class="btn">Apply for this Job</a>
 </body>
 </html>"""
 
@@ -66,15 +91,7 @@ def generate_job_page(job):
         f.write(content)
     return filename, filepath
 
-# --- HELPER FUNCTIONS ---
-def calculate_expiry(posted_date):
-    try:
-        dt = datetime.strptime(posted_date, "%Y-%m-%d")
-    except:
-        dt = datetime.utcnow()
-    expiry = dt + timedelta(days=EXPIRE_DAYS)
-    return expiry.strftime("%Y-%m-%d")
-
+# --- CACHE HELPERS ---
 def load_sent_cache():
     if os.path.exists(SENT_CACHE_FILE):
         with open(SENT_CACHE_FILE, "r", encoding="utf-8") as f:
@@ -86,30 +103,13 @@ def save_sent_cache(cache):
         json.dump(cache, f, indent=2)
 
 def job_hash(job):
-    """Generate a hash string based on job content to detect changes"""
-    return f"{job.get('title','')}_{job.get('company','')}_{job.get('snippet','')}_{job.get('link','')}"
-
-# --- CLEAN EXPIRED JOBS ---
-def remove_expired_html():
-    today = datetime.utcnow()
-    for filename in os.listdir(HTML_FOLDER):
-        if not filename.endswith(".html"):
-            continue
-        filepath = os.path.join(HTML_FOLDER, filename)
-        try:
-            mtime = datetime.utcfromtimestamp(os.path.getmtime(filepath))
-            expiry_date = mtime + timedelta(days=EXPIRE_DAYS)
-            if expiry_date < today:
-                os.remove(filepath)
-                notify_google(f"{SITE_URL}{filename}", action="URL_DELETED")
-                print(f"🗑 Expired page removed: {filename}")
-        except Exception as e:
-            print(f"⚠ Could not process {filename}: {e}")
+    """Detects changes in the manual data provided"""
+    return f"{job.get('title')}_{job.get('company_name')}_{job.get('apply_url')}"
 
 # --- MAIN ---
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python content_manager.py jobs.json")
+        print("Usage: python content_manager.py manual_jobs.json")
         sys.exit(1)
 
     json_file = sys.argv[1]
@@ -118,28 +118,27 @@ def main():
 
     sent_cache = load_sent_cache()
     updated_cache = sent_cache.copy()
-
     processed_count = 0
 
     for job in jobs_list:
-        job['expiry_date'] = calculate_expiry(job.get('posted_date', datetime.utcnow().strftime("%Y-%m-%d")))
         h = job_hash(job)
+        expiry = job.get('valid_through', 'N/A')
 
-        # Only notify Google if new or changed
-        if h in sent_cache and sent_cache[h] == job['expiry_date']:
+        # Only process if new or changed
+        if h in sent_cache and sent_cache[h] == expiry:
             print(f"⚡ Skipping unchanged job: {job.get('title')}")
             continue
 
         filename, filepath = generate_job_page(job)
+        
+        # Send the generated URL to Google
         notify_google(f"{SITE_URL}{filename}")
-        updated_cache[h] = job['expiry_date']
+        
+        updated_cache[h] = expiry
         processed_count += 1
 
     save_sent_cache(updated_cache)
-    print(f"✅ Processed {processed_count} jobs (new or updated)")
-
-    remove_expired_html()
-    print("✅ Expired jobs cleaned")
+    print(f"✅ Finished! Processed {processed_count} jobs.")
 
 if __name__ == "__main__":
     main()
