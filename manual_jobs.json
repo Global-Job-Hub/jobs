@@ -1,0 +1,87 @@
+[
+  {
+    "id": "job-001",
+    "title": "Merchandiser",
+    "company_name": "Bimbo Bakeries USA, Inc.",
+    "description": "Part‑time Merchandiser role servicing local accounts to ensure product availability on shelves.",
+    "apply_url": "https://www.careerbuilder.com/job-details/merchandiser-porterville-ca--d947e0da-32df-417e-b853-c5a0ecc02ba3",
+    "date_posted": "2026-02-24",
+    "valid_through": "2026-04-24",
+    "employment_type": "PART_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Porterville",
+        "addressRegion": "CA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-002",
+    "title": "Field Merchandising Representative",
+    "company_name": "Bimbo Bakeries USA, Inc.",
+    "description": "Represent and merchandise bakery products in local grocery stores; benefits included.",
+    "apply_url": "https://www.careerbuilder.com/job-details/field-merchandising-representative-lakewood-nj--39b567da-e073-4921-af24-348501e3c548",
+    "date_posted": "2026-03-01",
+    "valid_through": "2026-04-30",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Lakewood",
+        "addressRegion": "NJ",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-003",
+    "title": "Staff Product Data Scientist, Workspace Monetization",
+    "company_name": "Google",
+    "description": "Senior Data Scientist role focused on workspace monetization and analytics across multiple U.S. locations.",
+    "apply_url": "https://www.careerbuilder.com/job-details/staff-product-data-scientist-workspace-monetization-kirkland-wa--4d8a50d9-b092-4ed5-a894-6627768602f4",
+    "date_posted": "2026-02-21",
+    "valid_through": "2026-04-30",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Kirkland",
+        "addressRegion": "WA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-004",
+    "title": "Maintenance Technician",
+    "company_name": "Bimbo Bakeries USA, Inc.",
+    "description": "Maintenance Technician needed for bakery operations in Albany with competitive hourly pay.",
+    "apply_url": "https://www.careerbuilder.com/job-details/maintenance-technician-albany-ny--f2466f2f-d8ba-45ec-98f7-1be9bb983a6f",
+    "date_posted": "2026-03-03",
+    "valid_through": "2026-04-30",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Albany",
+        "addressRegion": "NY",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-005",
+    "title": "Class A Driver",
+    "company_name": "Bimbo Bakeries USA",
+    "description": "Class A delivery driver position with competitive hourly rate in Portland area.",
+    "apply_url": "https://www.careerbuilder.com/job-details/class-a-driver-portland-or--a48727d5-0b97-4661-9bb3-a2522d0af354",
+    "date_posted": "2026-03-03",
+    "valid_through": "2026-04-30",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Portland",
+        "addressRegion": "OR",
+        "addressCountry": "US"
+      }
+    }
+  }
+]

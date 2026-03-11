@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Global Job Hub - Job Search</title>
+<style>
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin:0; padding:0; color:#333; }
+.container { max-width: 1000px; margin:0 auto; background:#fff; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); padding:20px; display:flex; flex-wrap:wrap; }
+.main-content { flex:1 1 600px; padding-right:20px; }
+.sidebar { flex:0 0 200px; display:flex; flex-direction:column; gap:20px; }
+h1 { text-align:center; color:#007bff; width:100%; }
+#job-search { width:100%; padding:10px; margin-bottom:10px; font-size:16px; border-radius:5px; border:1px solid #ccc; }
+ul#job-list { list-style:none; padding:0; margin:0; }
+ul#job-list li { padding:10px; border-bottom:1px solid #eee; }
+ul#job-list li a { text-decoration:none; color:#007bff; font-weight:bold; }
+ul#job-list li a:hover { text-decoration:underline; }
+.ad-section { text-align:center; padding:10px; margin-bottom:20px; border:1px solid #eee; background:#fff; }
+footer { text-align:center; margin-top:30px; padding:20px; font-size:14px; color:#666; width:100%; }
+footer a { color:#007bff; text-decoration:none; margin:0 5px; }
+footer a:hover { text-decoration:underline; }
+/* Mobile responsiveness */
+@media(max-width:900px){ .container{flex-direction:column;} .sidebar{flex:1 1 100%; flex-direction:row; flex-wrap:wrap;} .sidebar > div{flex:1 1 48%; margin-bottom:10px;} }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Global Job Hub - Job Search</h1>
+    
+    <!-- Top Banner Ad -->
+    <div class="ad-section" id="ad-top"></div>
+
+    <div class="main-content">
+        <!-- Search Box -->
+        <input type="text" id="job-search" placeholder="Search jobs by title, company, or location...">
+
+        <!-- Inline Top Ad -->
+        <div class="ad-section" id="ad-inline-top"></div>
+
+        <!-- Job List -->
+        <ul id="job-list"></ul>
+
+        <!-- Inline Middle Ad -->
+        <div class="ad-section" id="ad-middle"></div>
+
+        <!-- Native Ad at Bottom -->
+        <div class="ad-section" id="ad-native"></div>
+    </div>
+
+    <div class="sidebar">
+        <!-- Sidebar Ads -->
+        <div class="ad-section" id="ad-sidebar-160x300"></div>
+        <div class="ad-section" id="ad-sidebar-160x600"></div>
+    </div>
+</div>
+
+<!-- Mobile Footer Ad -->
+<div class="ad-section" id="ad-bottom-320x50" style="position:sticky; bottom:0; background:#fff;"></div>
+
+<footer>
+    <p>© 2026 Global Job Hub. All rights reserved.</p>
+    <p>
+        <a href="index.html">Home</a> |
+        <a href="privacy.html">Privacy Policy</a> |
+        <a href="contact.html">Contact</a>
+    </p>
+</footer>
+
+<script>
+const ads = {
+    "ad-top": `{{AD_728X90}}`,
+    "ad-inline-top": `{{AD_468X60}}`,
+    "ad-sidebar-160x300": `{{AD_160X300}}`,
+    "ad-sidebar-160x600": `{{AD_160X600}}`,
+    "ad-middle": `{{AD_300X250}}`,
+    "ad-native": `{{AD_NATIVE}}`,
+    "ad-bottom-320x50": `{{AD_320X50}}`
+};
+
+// Inject ads
+for(const id in ads){
+    const el = document.getElementById(id);
+    if(el){ el.innerHTML = ads[id]; }
+}
+
+async function loadJobs(){
+    try{
+        const res = await fetch('index.json');
+        const jobs = await res.json();
+        const list = document.getElementById('job-list');
+        list.innerHTML = '';
+        jobs.sort((a,b)=>new Date(b.date_posted)-new Date(a.date_posted));
+        jobs.forEach((job,index)=>{
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="${job.url}" target="_blank">${job.title} at ${job.company} (${job.location})</a>`;
+            list.appendChild(li);
+        });
+    }catch(e){
+        console.error("Failed to load jobs:", e);
+        document.getElementById('job-list').innerHTML="<li>Unable to load jobs at this time.</li>";
+    }
+}
+
+loadJobs();
+
+// Search/filter
+const searchInput = document.getElementById('job-search');
+searchInput.addEventListener('input',()=>{
+    const filter = searchInput.value.toLowerCase();
+    document.querySelectorAll('#job-list li').forEach(li=>{
+        li.style.display = li.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    });
+});
+</script>
+</body>
+</html>
