@@ -7,75 +7,110 @@
     <title>Global Job Hub | Find Your Next Career</title>
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ID" crossorigin="anonymous"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+    
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 40px 20px; background-color: #f4f7f9; margin: 0; color: #333; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f7f9; margin: 0; color: #333; display: flex; flex-direction: column; align-items: center; }
         
-        /* Professional Ad Containers */
-        .top-ad-banner { max-width: 728px; margin: 0 auto 30px auto; min-height: 90px; background: #fff; border: 1px solid #e1e4e8; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 12px; }
+        /* Ad Containers */
+        .ad-center { margin: 15px auto; display: flex; justify-content: center; overflow: hidden; }
+        .ad-label { display: block; font-size: 10px; color: #bbb; text-transform: uppercase; margin-bottom: 5px; width: 100%; }
         
-        .container { background: white; padding: 50px 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: inline-block; width: 100%; max-width: 550px; border: 1px solid #e1e4e8; position: relative; }
+        /* Container and Layout */
+        .main-layout { display: flex; justify-content: center; align-items: flex-start; gap: 20px; width: 100%; max-width: 1200px; margin-top: 20px; }
+        .container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 550px; border: 1px solid #e1e4e8; position: relative; z-index: 2; }
         
-        h1 { color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 2.2rem; }
-        p { color: #7f8c8d; font-size: 1.1rem; margin-bottom: 30px; }
-        
-        /* Search Styling */
-        .search-container { position: relative; width: 100%; margin-top: 20px; }
-        #jobSearch { width: 100%; padding: 15px 20px; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; outline: none; box-sizing: border-box; transition: border-color 0.3s; }
-        #jobSearch:focus { border-color: #007bff; box-shadow: 0 0 8px rgba(0,123,255,0.1); }
+        /* Skyscrapers (Side Ads) */
+        .skyscraper { width: 160px; min-height: 600px; background: #fff; border: 1px solid #e1e4e8; border-radius: 8px; display: none; }
+        @media (min-width: 1000px) { .skyscraper { display: block; } }
 
-        #results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-radius: 0 0 10px 10px; border: 1px solid #ddd; border-top: none; display: none; z-index: 1000; box-shadow: 0 10px 20px rgba(0,0,0,0.1); max-height: 350px; overflow-y: auto; text-align: left; }
+        /* Mobile Sticky Footer Ad */
+        .sticky-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #ddd; z-index: 1000; padding: 5px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+
+        /* Typography & Search */
+        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2.2rem; }
+        .search-container { position: relative; width: 100%; margin-top: 20px; }
+        #jobSearch { width: 100%; padding: 15px 20px; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; outline: none; box-sizing: border-box; }
+        #results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-radius: 0 0 10px 10px; border: 1px solid #ddd; display: none; z-index: 1000; text-align: left; }
         .result-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #f8f8f8; }
         .result-item:hover { background: #f0f7ff; }
-        .result-title { font-weight: 600; color: #007bff; font-size: 15px; }
-        .result-meta { font-size: 12px; color: #666; }
-
         .trending { margin: 20px 0; font-size: 13px; color: #999; }
-        .trending span { color: #007bff; cursor: pointer; margin: 0 5px; text-decoration: underline; }
-
-        /* Inline Ad Styling */
-        .native-ad-slot { margin-top: 30px; padding: 20px; background: #fafafa; border-radius: 12px; border: 1px solid #f0f0f0; }
-        .ad-label { display: block; font-size: 10px; color: #bbb; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
-
-        footer { margin-top: 40px; font-size: 12px; color: #bbb; }
-        a { color: #007bff; text-decoration: none; }
+        .trending span { color: #007bff; cursor: pointer; text-decoration: underline; margin: 0 5px; }
+        footer { margin-top: 30px; font-size: 12px; color: #bbb; padding-bottom: 80px; } /* Space for sticky ad */
     </style>
 </head>
 <body>
 
-    <div class="top-ad-banner">
-        <span class="ad-label">Advertisement</span>
+    <div class="ad-center" style="max-width: 728px;">
+        <div>
+            <span class="ad-label">Advertisement</span>
+            <script>
+                atOptions = { 'key' : '3f839a213eb88160f46854419ad5dde6', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+            </script>
+            <script src="https://www.highperformanceformat.com/3f839a213eb88160f46854419ad5dde6/invoke.js"></script>
         </div>
+    </div>
 
-    <div class="container">
-        <h1>🌐 Global Job Hub</h1>
-        <p>Connecting you to millions of opportunities worldwide.</p>
-
-        <div class="search-container">
-            <input type="text" id="jobSearch" placeholder="Search by title, company, or location..." autocomplete="off">
-            <div id="results"></div>
-        </div>
-
-        <div class="trending">
-            Trending: <span onclick="quickSearch('Remote')">Remote</span>, 
-            <span onclick="quickSearch('Developer')">Developer</span>, 
-            <span onclick="quickSearch('Manager')">Manager</span>
-        </div>
-
-        <div class="native-ad-slot">
+    <div class="main-layout">
+        <div class="skyscraper">
             <span class="ad-label">Sponsored</span>
-            <div style="height: 120px; display: flex; align-items: center; justify-content: center; color: #ddd;">
-                [Native Ad Display Area]
-            </div>
+            <div style="width:160px; height:600px; background:#fafafa;"></div>
         </div>
 
-        <footer>
-            © 2026 Global Job Hub | <a href="privacy.html">Privacy Policy</a> | Powered by Jooble API
-        </footer>
+        <div class="container">
+            <h1>🌐 Global Job Hub</h1>
+            <p>Connecting you to millions of opportunities worldwide.</p>
+
+            <div class="ad-center" style="max-width: 468px;">
+                <div style="width:468px; height:60px; border: 1px dashed #eee;"></div>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="jobSearch" placeholder="Search by title, company, or location..." autocomplete="off">
+                <div id="results"></div>
+            </div>
+
+            <div class="trending">
+                Trending: <span onclick="quickSearch('Remote')">Remote</span>, 
+                <span onclick="quickSearch('Developer')">Developer</span>
+            </div>
+
+            <div class="ad-center" style="width: 100%;">
+                <div id="container-b9da25b2e6a0a079d89de2992bd1550b">
+                    <script async="async" data-cfasync="false" src="https://pl28866332.effectivegatecpm.com/b9da25b2e6a0a079d89de2992bd1550b/invoke.js"></script>
+                </div>
+            </div>
+
+            <div class="ad-center">
+                <div>
+                    <span class="ad-label">Recommended for you</span>
+                    <script>
+                        atOptions = { 'key' : '67ea727e78dcc41b8d65c7c29c63ea48', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+                    </script>
+                    <script src="https://www.highperformanceformat.com/67ea727e78dcc41b8d65c7c29c63ea48/invoke.js"></script>
+                </div>
+            </div>
+
+            <footer>
+                © 2026 Global Job Hub | <a href="privacy.html">Privacy Policy</a>
+            </footer>
+        </div>
+
+        <div class="skyscraper" style="min-height: 300px;">
+            <span class="ad-label">Sponsored</span>
+            <div style="width:160px; height:300px; background:#fafafa;"></div>
+        </div>
+    </div>
+
+    <div class="sticky-footer">
+        <span class="ad-label" style="margin:0;">Advertisement</span>
+        <div class="ad-center" style="margin:0;">
+            <div style="width:320px; height:50px; background:#eee; line-height:50px; font-size:10px;">320x50 MOBILE AD</div>
+        </div>
     </div>
 
     <script>
+        // ... (Same search script as before) ...
         const input = document.getElementById('jobSearch');
         const results = document.getElementById('results');
         let fuse;
@@ -83,10 +118,9 @@
         fetch('jobs_index.json')
             .then(res => res.json())
             .then(data => {
-                const options = { keys: ['t', 'c', 'l'], threshold: 0.4, distance: 100 };
-                fuse = new Fuse(data, options);
+                fuse = new Fuse(data, { keys: ['t', 'c', 'l'], threshold: 0.4 });
             })
-            .catch(err => console.error("Index load failed. Ensure python script generated jobs_index.json", err));
+            .catch(err => console.error("Index load failed:", err));
 
         input.addEventListener('input', () => {
             const val = input.value.trim();
@@ -99,23 +133,14 @@
                     const job = match.item;
                     const div = document.createElement('div');
                     div.className = 'result-item';
-                    div.innerHTML = `<div class="result-title">${job.t}</div><div class="result-meta">${job.c} • ${job.l}</div>`;
+                    div.innerHTML = `<strong>${job.t}</strong><br><small>${job.c} • ${job.l}</small>`;
                     div.onmousedown = () => window.location.href = job.u;
                     results.appendChild(div);
                 });
-            } else {
-                results.innerHTML = '<div style="padding:20px; color:#999; font-size:14px;">No jobs found.</div>';
-                results.style.display = 'block';
             }
         });
-
         input.addEventListener('blur', () => setTimeout(() => results.style.display = 'none', 200));
-
-        function quickSearch(term) {
-            input.value = term;
-            input.dispatchEvent(new Event('input'));
-            input.focus();
-        }
+        function quickSearch(t){ input.value=t; input.dispatchEvent(new Event('input')); }
     </script>
 </body>
 </html>
