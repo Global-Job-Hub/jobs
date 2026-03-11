@@ -1,1 +1,427 @@
-[]
+[
+  {
+    "id": "job-001",
+    "title": "Merchandiser",
+    "company_name": "Bimbo Bakeries USA, Inc.",
+    "description": "Part‑time Merchandiser role servicing local accounts to ensure product availability on shelves.",
+    "apply_url": "https://www.careerbuilder.com/job-details/merchandiser-porterville-ca--d947e0da-32df-417e-b853-c5a0ecc02ba3",
+    "date_posted": "2026-02-24",
+    "valid_through": "2026-04-24",
+    "employment_type": "PART_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Porterville",
+        "addressRegion": "CA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-002",
+    "title": "Field Merchandising Representative",
+    "company_name": "Bimbo Bakeries USA, Inc.",
+    "description": "Represent and merchandise bakery products in local grocery stores; benefits included.",
+    "apply_url": "https://www.careerbuilder.com/job-details/field-merchandising-representative-lakewood-nj--39b567da-e073-4921-af24-348501e3c548",
+    "date_posted": "2026-03-01",
+    "valid_through": "2026-04-30",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Lakewood",
+        "addressRegion": "NJ",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-003",
+    "title": "Staff Product Data Scientist, Workspace Monetization",
+    "company_name": "Google",
+    "description": "Senior Data Scientist role focused on workspace monetization and analytics across multiple U.S. locations.",
+    "apply_url": "https://www.careerbuilder.com/job-details/staff-product-data-scientist-workspace-monetization-kirkland-wa--4d8a50d9-b092-4ed5-a894-6627768602f4",
+    "date_posted": "2026-02-21",
+    "valid_through": "2026-04-30",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Kirkland",
+        "addressRegion": "WA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-004",
+    "title": "Maintenance Technician",
+    "company_name": "Bimbo Bakeries USA, Inc.",
+    "description": "Maintenance Technician needed for bakery operations in Albany with competitive hourly pay.",
+    "apply_url": "https://www.careerbuilder.com/job-details/maintenance-technician-albany-ny--f2466f2f-d8ba-45ec-98f7-1be9bb983a6f",
+    "date_posted": "2026-03-03",
+    "valid_through": "2026-04-30",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Albany",
+        "addressRegion": "NY",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-005",
+    "title": "Class A Driver",
+    "company_name": "Bimbo Bakeries USA",
+    "description": "Class A delivery driver position with competitive hourly rate in Portland area.",
+    "apply_url": "https://www.careerbuilder.com/job-details/class-a-driver-portland-or--a48727d5-0b97-4661-9bb3-a2522d0af354",
+    "date_posted": "2026-03-03",
+    "valid_through": "2026-04-30",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Portland",
+        "addressRegion": "OR",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-011",
+    "title": "Frontend Developer",
+    "company_name": "Web Solutions",
+    "description": "Build responsive web interfaces using React and Vue. Collaborate with designers and backend engineers.",
+    "apply_url": "https://www.careerbuilder.com/job-details/frontend-developer-los-angeles-ca-011",
+    "date_posted": "2026-03-01",
+    "valid_through": "2026-04-01",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Los Angeles",
+        "addressRegion": "CA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-012",
+    "title": "Backend Developer",
+    "company_name": "TechWorks",
+    "description": "Develop and maintain server-side applications with Python and Node.js. Ensure API performance and reliability.",
+    "apply_url": "https://www.careerbuilder.com/job-details/backend-developer-seattle-wa-012",
+    "date_posted": "2026-03-02",
+    "valid_through": "2026-04-02",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Seattle",
+        "addressRegion": "WA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-013",
+    "title": "UI/UX Designer",
+    "company_name": "DesignHub",
+    "description": "Create user-centric designs and prototypes for web and mobile applications. Collaborate with product teams.",
+    "apply_url": "https://www.careerbuilder.com/job-details/ui-ux-designer-austin-tx-013",
+    "date_posted": "2026-03-03",
+    "valid_through": "2026-04-03",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Austin",
+        "addressRegion": "TX",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-014",
+    "title": "Data Scientist",
+    "company_name": "Data Insights",
+    "description": "Analyze large datasets to extract actionable insights and build predictive models. Collaborate with engineering teams.",
+    "apply_url": "https://www.careerbuilder.com/job-details/data-scientist-boston-ma-014",
+    "date_posted": "2026-03-04",
+    "valid_through": "2026-04-04",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Boston",
+        "addressRegion": "MA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-015",
+    "title": "DevOps Engineer",
+    "company_name": "CloudOps",
+    "description": "Manage CI/CD pipelines and cloud infrastructure for scalable applications. Focus on automation and monitoring.",
+    "apply_url": "https://www.careerbuilder.com/job-details/devops-engineer-chicago-il-015",
+    "date_posted": "2026-03-05",
+    "valid_through": "2026-04-05",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Chicago",
+        "addressRegion": "IL",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-016",
+    "title": "QA Engineer",
+    "company_name": "SoftTesters",
+    "description": "Perform automated and manual testing to ensure software quality. Write test cases and report bugs.",
+    "apply_url": "https://www.careerbuilder.com/job-details/qa-engineer-denver-co-016",
+    "date_posted": "2026-03-06",
+    "valid_through": "2026-04-06",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Denver",
+        "addressRegion": "CO",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-017",
+    "title": "Product Manager",
+    "company_name": "InnovateX",
+    "description": "Define product roadmaps and collaborate with engineering and design teams to deliver high-impact products.",
+    "apply_url": "https://www.careerbuilder.com/job-details/product-manager-san-francisco-ca-017",
+    "date_posted": "2026-03-07",
+    "valid_through": "2026-04-07",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "San Francisco",
+        "addressRegion": "CA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-018",
+    "title": "Mobile App Developer",
+    "company_name": "AppForge",
+    "description": "Develop cross-platform mobile applications using Flutter or React Native. Work closely with designers and backend engineers.",
+    "apply_url": "https://www.careerbuilder.com/job-details/mobile-app-developer-miami-fl-018",
+    "date_posted": "2026-03-08",
+    "valid_through": "2026-04-08",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Miami",
+        "addressRegion": "FL",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-019",
+    "title": "Cybersecurity Analyst",
+    "company_name": "SecureNet",
+    "description": "Monitor systems and networks to protect against cyber threats. Implement security protocols and audits.",
+    "apply_url": "https://www.careerbuilder.com/job-details/cybersecurity-analyst-washington-dc-019",
+    "date_posted": "2026-03-09",
+    "valid_through": "2026-04-09",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Washington",
+        "addressRegion": "DC",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-020",
+    "title": "Marketing Specialist",
+    "company_name": "BrandWave",
+    "description": "Plan and execute digital marketing campaigns to grow brand awareness and customer engagement.",
+    "apply_url": "https://www.careerbuilder.com/job-details/marketing-specialist-new-york-ny-020",
+    "date_posted": "2026-03-10",
+    "valid_through": "2026-04-10",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "New York",
+        "addressRegion": "NY",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-021",
+    "title": "Cloud Solutions Architect",
+    "company_name": "Nimbus Technologies",
+    "description": "Lead design and implementation of scalable cloud architectures across multi‑region deployments.",
+    "apply_url": "https://www.careerbuilder.com/job-details/cloud-solutions-architect-seattle-wa-021",
+    "date_posted": "2026-03-11",
+    "valid_through": "2026-05-11",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Seattle",
+        "addressRegion": "WA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-022",
+    "title": "Senior Java Developer",
+    "company_name": "TechForge Inc.",
+    "description": "Develop enterprise Java applications, optimize code performance, and collaborate with cross‑functional teams.",
+    "apply_url": "https://www.careerbuilder.com/job-details/senior-java-developer-dallas-tx-022",
+    "date_posted": "2026-03-12",
+    "valid_through": "2026-05-12",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Dallas",
+        "addressRegion": "TX",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-023",
+    "title": "Network Administrator",
+    "company_name": "SecureWave Networks",
+    "description": "Manage network infrastructure, configure routers/switches, maintain security policies and network health.",
+    "apply_url": "https://www.careerbuilder.com/job-details/network-administrator-atlanta-ga-023",
+    "date_posted": "2026-03-13",
+    "valid_through": "2026-05-13",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Atlanta",
+        "addressRegion": "GA",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-024",
+    "title": "Financial Analyst",
+    "company_name": "CapitalCore Consulting",
+    "description": "Analyze financial performance, prepare models, and produce reports to guide strategic decisions.",
+    "apply_url": "https://www.careerbuilder.com/job-details/financial-analyst-charlotte-nc-024",
+    "date_posted": "2026-03-14",
+    "valid_through": "2026-05-14",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Charlotte",
+        "addressRegion": "NC",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-025",
+    "title": "HR Business Partner",
+    "company_name": "PeopleFirst Solutions",
+    "description": "Partner with business units to implement HR strategies and manage employee relations.",
+    "apply_url": "https://www.careerbuilder.com/job-details/hr-business-partner-phoenix-az-025",
+    "date_posted": "2026-03-15",
+    "valid_through": "2026-05-15",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Phoenix",
+        "addressRegion": "AZ",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-026",
+    "title": "Graphic Designer",
+    "company_name": "BrandVision Studio",
+    "description": "Create visual designs for clients, collaborate with product teams, and develop branded assets.",
+    "apply_url": "https://www.careerbuilder.com/job-details/graphic-designer-denver-co-026",
+    "date_posted": "2026-03-16",
+    "valid_through": "2026-05-16",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Denver",
+        "addressRegion": "CO",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-027",
+    "title": "Operations Manager",
+    "company_name": "EfficientOps LLC",
+    "description": "Oversee daily operations, coordinate teams, and improve operational efficiency across departments.",
+    "apply_url": "https://www.careerbuilder.com/job-details/operations-manager-miami-fl-027",
+    "date_posted": "2026-03-17",
+    "valid_through": "2026-05-17",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Miami",
+        "addressRegion": "FL",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-028",
+    "title": "Business Development Specialist",
+    "company_name": "GrowthWave Partners",
+    "description": "Identify new business opportunities, build client relationships, and drive revenue growth.",
+    "apply_url": "https://www.careerbuilder.com/job-details/business-development-miami-fl-028",
+    "date_posted": "2026-03-18",
+    "valid_through": "2026-05-18",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Miami",
+        "addressRegion": "FL",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-029",
+    "title": "Content Writer",
+    "company_name": "Ink & Ideas Media",
+    "description": "Write engaging content for blogs, websites and marketing campaigns across industries.",
+    "apply_url": "https://www.careerbuilder.com/job-details/content-writer-baltimore-md-029",
+    "date_posted": "2026-03-19",
+    "valid_through": "2026-05-19",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Baltimore",
+        "addressRegion": "MD",
+        "addressCountry": "US"
+      }
+    }
+  },
+  {
+    "id": "job-030",
+    "title": "Customer Service Supervisor",
+    "company_name": "ServiceFirst Corp.",
+    "description": "Lead customer support teams to ensure high satisfaction and resolve escalated issues.",
+    "apply_url": "https://www.careerbuilder.com/job-details/customer-service-supervisor-charlotte-nc-030",
+    "date_posted": "2026-03-20",
+    "valid_through": "2026-05-20",
+    "employment_type": "FULL_TIME",
+    "job_location": {
+      "address": {
+        "addressLocality": "Charlotte",
+        "addressRegion": "NC",
+        "addressCountry": "US"
+      }
+    }
+  }
+]
