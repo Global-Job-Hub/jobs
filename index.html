@@ -1,125 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Global Job Hub - Job Search</title>
-<style>
-body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f0f2f5; margin:0; padding:0; color:#333; }
-.container { max-width:1000px; margin:0 auto; background:#fff; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); padding:20px; display:flex; flex-wrap:wrap; }
-.main-content { flex:1 1 600px; padding-right:20px; }
-.sidebar { flex:0 0 200px; display:flex; flex-direction:column; gap:20px; }
-h1 { text-align:center; color:#007bff; width:100%; }
-#job-search { width:100%; padding:10px; margin-bottom:10px; font-size:16px; border-radius:5px; border:1px solid #ccc; }
-ul#job-list { list-style:none; padding:0; margin:0; }
-ul#job-list li { padding:10px; border-bottom:1px solid #eee; }
-ul#job-list li a { text-decoration:none; color:#007bff; font-weight:bold; }
-ul#job-list li a:hover { text-decoration:underline; }
-.ad-section { text-align:center; padding:10px; margin-bottom:20px; border:1px solid #eee; background:#fff; }
-footer { text-align:center; margin-top:30px; padding:20px; font-size:14px; color:#666; width:100%; }
-footer a { color:#007bff; text-decoration:none; margin:0 5px; }
-footer a:hover { text-decoration:underline; }
-/* Mobile responsiveness */
-@media(max-width:900px){ 
-  .container{flex-direction:column;} 
-  .sidebar{flex:1 1 100%; flex-direction:row; flex-wrap:wrap;} 
-  .sidebar > div{flex:1 1 48%; margin-bottom:10px;} 
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USA Plumbing Services | 24/7 Emergency Plumber Nationwide</title>
+    <meta name="description" content="Professional emergency plumbing services across the USA. Expert leak repair, drain cleaning, and pipe installation. Call +1 (308) 550-8314 for 24/7 service.">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Plumber",
+          "name": "USA Plumbing Services",
+          "telePhone": "+1-308-550-8314",
+          "url": "https://yourwebsite.com",
+          "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "US"
+          },
+          "description": "Licensed nationwide plumbing providing emergency repairs and leak detection 24/7.",
+          "areaServed": [
+            {"@type": "State", "name": "California"}, {"@type": "State", "name": "Texas"},
+            {"@type": "State", "name": "Florida"}, {"@type": "State", "name": "New York"},
+            {"@type": "State", "name": "Illinois"}, {"@type": "State", "name": "Pennsylvania"},
+            {"@type": "State", "name": "Ohio"}, {"@type": "State", "name": "Georgia"},
+            {"@type": "State", "name": "North Carolina"}
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        :root { --primary: #0a74da; --secondary: #28a745; --dark: #222; --light: #f4f4f4; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; line-height: 1.6; color: #333; background: var(--light); }
+        
+        header { background: var(--primary); color: white; padding: 50px 20px; text-align: center; border-bottom: 5px solid #0856a3; }
+        .hero h1 { margin: 0; font-size: 2.8rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .hero p { font-size: 1.2rem; opacity: 0.9; }
+        
+        .container { max-width: 1100px; margin: -30px auto 20px; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        
+        .btn { display: inline-block; padding: 18px 35px; background: var(--secondary); color: white; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4); transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.6); background: #218838; }
+
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin: 40px 0; }
+        .service-card { border: 1px solid #eee; padding: 25px; border-radius: 10px; text-align: center; background: #fff; transition: 0.3s; }
+        .service-card:hover { border-color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+        /* Multi-State SEO Grid */
+        .location-section { background: #fafafa; padding: 40px; border-radius: 10px; margin-top: 40px; border: 1px solid #eee; }
+        .location-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 25px; }
+        .state-box h4 { border-left: 4px solid var(--primary); padding-left: 10px; margin-bottom: 12px; color: var(--dark); font-size: 1.1rem; }
+        .state-box ul { list-style: none; padding: 0; margin: 0; }
+        .state-box li { font-size: 0.9rem; color: #666; padding: 2px 0; border-bottom: 1px solid #f0f0f0; }
+
+        footer { background: var(--dark); color: white; text-align: center; padding: 40px 20px; margin-top: 60px; }
+        .footer-cta { margin-bottom: 20px; font-size: 1.1rem; }
+
+        @media (max-width: 600px) { .hero h1 { font-size: 2rem; } .container { width: 90%; padding: 20px; } .location-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
 </head>
 <body>
 
+<header>
+    <div class="hero">
+        <h1>USA Plumbing Services</h1>
+        <p>Licensed Professionals • Available 24 Hours • Emergency Response</p>
+        <div style="margin-top: 25px;">
+            <a href="tel:+13085508314" class="btn">Call Now: (308) 550-8314</a>
+        </div>
+    </div>
+</header>
+
 <div class="container">
-    <h1>Global Job Hub - Job Search</h1>
+    <section>
+        <h2 style="text-align: center;">Fast, Professional Plumbing Anywhere in the USA</h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto;">From residential leak detection to large-scale commercial pipe installation, our team is equipped with the latest technology to solve your plumbing issues immediately. We offer <strong>24/7 support</strong> in every major US time zone.</p>
+    </section>
 
-    <!-- Top Banner Ad -->
-    <div class="ad-section" id="ad-top"></div>
-
-    <div class="main-content">
-        <!-- Search Box -->
-        <input type="text" id="job-search" placeholder="Search jobs by title, company, or location...">
-
-        <!-- Inline Top Ad -->
-        <div class="ad-section" id="ad-inline-top"></div>
-
-        <!-- Job List -->
-        <ul id="job-list"></ul>
-
-        <!-- Inline Middle Ad -->
-        <div class="ad-section" id="ad-middle"></div>
-
-        <!-- Native Ad at Bottom -->
-        <div class="ad-section" id="ad-native"></div>
+    <div class="services-grid">
+        <div class="service-card">
+            <h3 style="color: var(--primary);">Emergency Repairs</h3>
+            <p>Immediate response for burst pipes, flooding, and gas line issues.</p>
+        </div>
+        <div class="service-card">
+            <h3 style="color: var(--primary);">Drain & Sewer</h3>
+            <p>Advanced hydro-jetting and rooter services for stubborn clogs.</p>
+        </div>
+        <div class="service-card">
+            <h3 style="color: var(--primary);">Installation</h3>
+            <p>Expert installation for water heaters, faucets, and main lines.</p>
+        </div>
     </div>
 
-    <div class="sidebar">
-        <!-- Sidebar Ads -->
-        <div class="ad-section" id="ad-sidebar-160x300"></div>
-        <div class="ad-section" id="ad-sidebar-160x600"></div>
-    </div>
+    <section class="location-section">
+        <h2 style="margin-top: 0; color: var(--dark); text-align: center;">Our Major Service Hubs</h2>
+        <p style="text-align: center; color: #777; margin-bottom: 30px;">Proudly serving homeowners and businesses in these states and beyond:</p>
+        
+        <div class="location-grid">
+            <div class="state-box">
+                <h4>California</h4>
+                <ul><li>Los Angeles</li><li>San Diego</li><li>San Jose</li><li>San Francisco</li></ul>
+            </div>
+            <div class="state-box">
+                <h4>Texas</h4>
+                <ul><li>Houston</li><li>Dallas</li><li>Austin</li><li>San Antonio</li></ul>
+            </div>
+            <div class="state-box">
+                <h4>Florida</h4>
+                <ul><li>Miami</li><li>Orlando</li><li>Tampa</li><li>Jacksonville</li></ul>
+            </div>
+            <div class="state-box">
+                <h4>New York</h4>
+                <ul><li>NYC</li><li>Buffalo</li><li>Rochester</li><li>Yonkers</li></ul>
+            </div>
+            <div class="state-box">
+                <h4>Illinois</h4>
+                <ul><li>Chicago</li><li>Aurora</li><li>Naperville</li><li>Joliet</li></ul>
+            </div>
+            <div class="state-box">
+                <h4>Pennsylvania</h4>
+                <ul><li>Philadelphia</li><li>Pittsburgh</li><li>Allentown</li><li>Erie</li></ul>
+            </div>
+            <div class="state-box">
+                <h4>Ohio</h4>
+                <ul><li>Columbus</li><li>Cleveland</li><li>Cincinnati</li><li>Toledo</li></ul>
+            </div>
+            <div class="state-box">
+                <h4>Georgia</h4>
+                <ul><li>Atlanta</li><li>Augusta</li><li>Columbus</li><li>Savannah</li></ul>
+            </div>
+            <div class="state-box">
+                <h4>North Carolina</h4>
+                <ul><li>Charlotte</li><li>Raleigh</li><li>Greensboro</li><li>Durham</li></ul>
+            </div>
+        </div>
+        <p style="text-align: center; margin-top: 30px; font-style: italic; color: #888;">Nationwide coverage: If your city isn't listed, we still serve you! Call us 24/7.</p>
+    </section>
 </div>
 
-<!-- Mobile Footer Ad -->
-<div class="ad-section" id="ad-bottom-320x50" style="position:sticky; bottom:0; background:#fff;"></div>
-
 <footer>
-    <p>© 2026 Global Job Hub. All rights reserved.</p>
-    <p>
-        <a href="index.html">Home</a> |
-        <a href="privacy.html">Privacy Policy</a> |
-        <a href="contact.html">Contact</a>
-    </p>
+    <div class="footer-cta">
+        <strong>Need a Plumber Right Now?</strong><br>
+        <span style="font-size: 1.5rem; color: #28a745;">(308) 550-8314</span>
+    </div>
+    <p>&copy; 2026 USA Plumbing Services. All rights reserved.</p>
+    <p style="opacity: 0.6; font-size: 0.8rem;">Licensed, Bonded, and Insured. Service quality guaranteed.</p>
 </footer>
-
-<script>
-// --- Ad placeholders ---
-const ads = {
-    "ad-top": '<div class="ad-slot">Ad 728x90</div>',
-    "ad-inline-top": '<div class="ad-slot">Ad 468x60</div>',
-    "ad-sidebar-160x300": '<div class="ad-slot">Ad 160x300</div>',
-    "ad-sidebar-160x600": '<div class="ad-slot">Ad 160x600</div>',
-    "ad-middle": '<div class="ad-slot">Ad 300x250</div>',
-    "ad-native": '<div class="ad-slot">Native Ad</div>',
-    "ad-bottom-320x50": '<div class="ad-slot">Ad 320x50</div>'
-};
-
-// Inject ads
-for(const id in ads){
-    const el = document.getElementById(id);
-    if(el){ el.innerHTML = ads[id]; }
-}
-
-// --- Load jobs from index.json ---
-async function loadJobs(){
-    try{
-        const res = await fetch('index.json');
-        const jobs = await res.json();
-        const list = document.getElementById('job-list');
-        list.innerHTML = '';
-        // Sort by date descending
-        jobs.sort((a,b)=>new Date(b.date_posted)-new Date(a.date_posted));
-        jobs.forEach(job=>{
-            const li = document.createElement('li');
-            li.innerHTML = `<a href="${job.url}" target="_blank">${job.title} at ${job.company} (${job.location})</a>`;
-            list.appendChild(li);
-        });
-    }catch(e){
-        console.error("Failed to load jobs:", e);
-        document.getElementById('job-list').innerHTML="<li>Unable to load jobs at this time.</li>";
-    }
-}
-
-loadJobs();
-
-// --- Search / Filter ---
-const searchInput = document.getElementById('job-search');
-searchInput.addEventListener('input', ()=>{
-    const filter = searchInput.value.toLowerCase();
-    document.querySelectorAll('#job-list li').forEach(li=>{
-        li.style.display = li.textContent.toLowerCase().includes(filter) ? '' : 'none';
-    });
-});
-</script>
 
 </body>
 </html>
