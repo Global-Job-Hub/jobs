@@ -19,21 +19,30 @@
     <meta name="theme-color" content="#0a74da">
 
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Plumber",
-          "name": "USA Plumbing Services",
-          "telePhone": "+1-308-550-8314",
-          "url": "https://global-job-hub.github.io/plumbing/",
-          "priceRange": "$$",
-          "address": { "@type": "PostalAddress", "addressCountry": "US" },
-          "areaServed": ["CA", "TX", "FL", "NY", "IL", "PA", "OH", "GA", "NC"]
-        }
-      ]
+{
+  "@context": "https://schema.org/",
+  "@type": "JobPosting",
+  "title": "Emergency Plumber Technician",
+  "description": "We are seeking emergency plumbers for 24/7 residential and commercial repair services across the USA.",
+  "datePosted": "2026-03-12",
+  "validThrough": "2027-03-12",
+  "employmentType": "FULL_TIME",
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": "USA Plumbing Services",
+    "sameAs": "https://global-job-hub.github.io/plumbing/"
+  },
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Nationwide",
+      "addressRegion": "USA",
+      "addressCountry": "US"
     }
-    </script>
+  }
+}
+</script>
 
     <style>
         :root { --primary: #0a74da; --secondary: #28a745; --dark: #222; --light: #f4f4f4; }
