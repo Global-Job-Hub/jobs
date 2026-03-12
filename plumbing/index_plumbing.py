@@ -26,10 +26,11 @@ headers = {
 }
 
 # 5. List of all pages in your plumbing folder to index
+# Notice the "/jobs/" added to the path to match your Search Console property
 urls_to_index = [
-    "https://global-job-hub.github.io/plumbing/index.html",
-    "https://global-job-hub.github.io/plumbing/privacy-policy.html",
-    "https://global-job-hub.github.io/plumbing/terms-of-service.html"
+    "https://global-job-hub.github.io/jobs/plumbing/index.html",
+    "https://global-job-hub.github.io/jobs/plumbing/privacy-policy.html",
+    "https://global-job-hub.github.io/jobs/plumbing/terms-of-service.html"
 ]
 
 # 6. Send the requests
