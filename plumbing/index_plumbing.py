@@ -15,18 +15,38 @@ creds_dict = json.loads(creds_json)
 scopes = ['https://www.googleapis.com/auth/indexing']
 endpoint = "https://indexing.googleapis.com/v3/urlNotifications:publish"
 
+# 3. Get Access Token manually (This fixes the 'data' keyword error)
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scopes)
-session = credentials.authorize(requests.Session())
+access_token = credentials.get_access_token().access_token
 
-# 3. Define the URL to index
-url_to_index = "https://global-job-hub.github.io/jobs/plumbing/index.html"
-
-# 4. Send the request
-content = {
-  "url": url_to_index,
-  "type": "URL_UPDATED"
+# 4. Define headers
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {access_token}"
 }
 
-response = session.post(endpoint, json=content)
-print(f"Status Code: {response.status_code}")
-print(f"Response: {response.json()}")
+# 5. List of all pages in your plumbing folder to index
+urls_to_index = [
+    "https://global-job-hub.github.io/plumbing/index.html",
+    "https://global-job-hub.github.io/plumbing/privacy-policy.html",
+    "https://global-job-hub.github.io/plumbing/terms-of-service.html"
+]
+
+# 6. Send the requests
+print(f"Starting indexing for {len(urls_to_index)} URLs...")
+
+for url in urls_to_index:
+    content = {
+        "url": url,
+        "type": "URL_UPDATED"
+    }
+    try:
+        response = requests.post(endpoint, json=content, headers=headers)
+        print(f"URL: {url}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        print("-" * 30)
+    except Exception as e:
+        print(f"Failed to index {url}: {e}")
+
+print("Indexing process complete.")
