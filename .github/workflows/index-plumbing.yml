@@ -1,10 +1,10 @@
 name: Index Plumbing Page
 
 on:
-  workflow_dispatch: # Allows you to run it manually from the Actions tab
+  workflow_dispatch: 
   push:
     paths:
-      - 'jobs/plumbing/**' # Runs automatically if you edit files in this folder
+      - 'plumbing/**'
 
 jobs:
   index-url:
@@ -24,6 +24,5 @@ jobs:
       - name: Run Indexing Script
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-        # This tells GitHub to go inside the folder before running the command
-        working-directory: jobs/plumbing
-        run: python index_plumbing.py
+        # Correct path based on your screenshot
+        run: python plumbing/index_plumbing.py
