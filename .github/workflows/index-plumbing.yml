@@ -1,0 +1,28 @@
+name: Index Plumbing Page
+
+on:
+  workflow_dispatch: # Allows manual run
+  push:
+    paths:
+      - 'jobs/plumbing/**' # Runs if anything in the plumbing folder changes
+
+jobs:
+  index-url:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests oauth2client
+
+      - name: Run Indexing Script
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+        # Notice the path change below to point to your plumbing folder
+        run: python jobs/plumbing/index_plumbing.py
